@@ -1,6 +1,7 @@
 import unittest
 
 from vending_machine import app
+from vending_machine import db
 
 class TestRootRoute(unittest.TestCase):
 
