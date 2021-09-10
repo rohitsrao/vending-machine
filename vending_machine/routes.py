@@ -3,4 +3,6 @@ from vending_machine import app
 
 @app.route('/', methods=['GET'])
 def home():
-    return jsonify('test')
+    return jsonify(
+        products = {}
+    )
