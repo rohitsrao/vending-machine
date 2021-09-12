@@ -23,22 +23,29 @@ class TestRegisterRoute(unittest.TestCase):
     
     def test_register_new_user_as_buyer(self):
         post_data = {
-            "username": 'hummuslover',
-            "password": 'pw123',
-            "seller": False
+            'username': 'hummuslover',
+            'password': 'pw123',
+            'seller': False
         }
         response = self.client.post('/register', json=post_data)
         response_message = response.get_json()['message']
         with self.app.app_context():
             self.db.create_all()
-            new_user = User.query.filter_by(username=post_data["username"]).first()
-            self.assertIsNotNone(new_user)
-            self.assertEqual(new_user.username, post_data['username'])
+            new_buyer = User.query.filter_by(username=post_data['username']).first()
+            self.assertIsNotNone(new_buyer)
+            self.assertEqual(new_buyer.username, post_data['username'])
         self.assertEqual(response_message, 'registered successfully')
 
     def test_register_new_user_as_seller(self):
         post_data = {
             'username': 'pikachu',
             'password': 'password',
+            'seller': True
         }
+        response = self.client.post('/register', json=post_data)
+        response_message = response.get_json()['message']
+        with self.app.app_context():
+            self.db.create_all()
+            new_seller = User.query.filter_by(username=post_data['username']).first()
+            self.assertEqual(new_seller.role, 'seller')
 
