@@ -118,3 +118,33 @@ class TestRegisterRoute(unittest.TestCase):
         response = self.client.post('/user/login', json=login_data)
         self.assertEqual(response.get_json()['message'],
                          'login successful')
+
+    def test_wrong_username_failed_login_returns_failure_message(self):
+        register_data = {
+            'username': 'phineas458',
+            'password': 'pkdudeisawesome',
+            'seller': False
+        }
+        login_data = {
+            'username': 'doofenshmritzEvilInc',
+            'password': 'pkdudeisawesome',
+        }
+        _ = self.client.post('/user/register', json=register_data)
+        response = self.client.post('/user/login', json=login_data)
+        self.assertEqual(response.get_json()['message'],
+                         'login attempt failed due to incorrect username')
+
+    def test_wrong_password_failed_login_returns_failure_message(self):
+        register_data = {
+            'username': 'phineas458',
+            'password': 'pkdudeisawesome',
+            'seller': False
+        }
+        login_data = {
+            'username': 'phineas458',
+            'password': 'udaydudeisawesome',
+        }
+        _ = self.client.post('/user/register', json=register_data)
+        response = self.client.post('/user/login', json=login_data)
+        self.assertEqual(response.get_json()['message'],
+                         'login attempt failed due to incorrect password')

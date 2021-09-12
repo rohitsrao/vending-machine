@@ -9,7 +9,7 @@ from vending_machine.models import User
 
 users = Blueprint('users', __name__)
 
-def username_already_exists(username):
+def username_exists(username):
     existing_user = User.query.filter_by(username=username).first()
     if existing_user:
         return True
@@ -38,15 +38,18 @@ def register():
             return jsonify(message='password not provided')
         username = req['username']
         password = req['password']
-        if username_already_exists(username):
+        if username_exists(username):
             return jsonify(message='username already exists. Please register with a different one')
         if 'seller' in req and req['seller'] == True:
-            hashed_pw = bcrypt.generate_password_hash(password)
+            hashed_pw = bcrypt.generate_password_hash(password).decode('utf-8')
             new_user = User(username=username, password=hashed_pw, role='seller')
             del hashed_pw
             gc.collect()
         else:
-            new_user = User(username=username, password=password)
+            hashed_pw = bcrypt.generate_password_hash(password).decode('utf-8')
+            new_user = User(username=username, password=hashed_pw)
+            del hashed_pw
+            gc.collect()
         with current_app.app_context():
             db.session.add(new_user)
             db.session.commit()
@@ -63,7 +66,12 @@ def login():
         req = request.get_json()
         username = req['username']
         password = req['password']
+        if not username_exists(username):
+            return jsonify(message='login attempt failed due to incorrect username')
         user = User.query.filter_by(username=username).first()
-        if user and bcrypt.check_password_hash(user.password, password):
+        print(user.password)
+        if not bcrypt.check_password_hash(user.password, password):
+            return jsonify(message='login attempt failed due to incorrect password')
+        elif bcrypt.check_password_hash(user.password, password):
             login_user(user)
             return jsonify(message='login successful')
