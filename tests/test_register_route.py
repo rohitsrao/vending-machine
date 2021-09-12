@@ -65,8 +65,25 @@ class TestRegisterRoute(unittest.TestCase):
         response = self.client.post('/register', json=self.post_data_seller)
         response_message = response.get_json()['message']
         self.assertEqual(response_message, 'registered successfully')
-
+    
     def test_username_should_be_unique(self):
         _ = self.client.post('/register', json=self.post_data_buyer)
-        with self.assertRaises(IntegrityError):
-            _ = self.client.post('/register', json=self.post_data_buyer)
+        response = self.client.post('/register', json=self.post_data_buyer)
+        self.assertEqual(response.get_json()['message'], 
+                         'username already exists. Please register with a different one')
+    
+    def test_register_post_request_with_missing_username(self):
+        post_data = {
+            'password': 'password'
+        }
+        response = self.client.post('/register', json=post_data)
+        self.assertEqual(response.get_json()['message'],
+                    'username not provided')
+    
+    def test_register_post_request_with_missing_password(self):
+        post_data = {
+            'username': 'ronaldocr7'
+        }
+        response = self.client.post('/register', json=post_data)
+        self.assertEqual(response.get_json()['message'],
+                    'password not provided')
