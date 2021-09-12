@@ -3,7 +3,7 @@ import unittest
 
 from sqlalchemy.exc import IntegrityError
 from test_config import TestConfig
-from vending_machine import create_app, init_db
+from vending_machine import bcrypt, create_app, init_db
 from vending_machine.models import User
 
 class TestRegisterRoute(unittest.TestCase):
@@ -16,7 +16,7 @@ class TestRegisterRoute(unittest.TestCase):
             self.db.create_all()
         
         self.client = self.app.test_client()
-        self.get_response = self.client.get('/register')
+        self.get_response = self.client.get('/user/register')
         
         self.post_data_buyer = {
             'username': 'hummuslover',
@@ -44,31 +44,31 @@ class TestRegisterRoute(unittest.TestCase):
                          'Set seller to False if you want to register as a buyer.')
     
     def test_register_new_user_as_buyer_added_to_db(self):
-        _ = self.client.post('/register', json=self.post_data_buyer)
+        _ = self.client.post('/user/register', json=self.post_data_buyer)
         with self.app.app_context():
             new_buyer = User.query.filter_by(username=self.post_data_buyer['username']).first()
             self.assertIsNotNone(new_buyer)
             self.assertEqual(new_buyer.username, self.post_data_buyer['username'])
     
     def test_register_new_user_as_seller_added_to_db(self):
-        _ = self.client.post('/register', json=self.post_data_seller)
+        _ = self.client.post('/user/register', json=self.post_data_seller)
         with self.app.app_context():
             new_seller = User.query.filter_by(username=self.post_data_seller['username']).first()
             self.assertIsNotNone(new_seller)
             self.assertEqual(new_seller.role, 'seller')
     
     def test_register_new_user_success_response_message(self):
-        response = self.client.post('/register', json=self.post_data_buyer)
+        response = self.client.post('/user/register', json=self.post_data_buyer)
         response_message = response.get_json()['message']
         self.assertEqual(response_message, 'registered successfully')
         
-        response = self.client.post('/register', json=self.post_data_seller)
+        response = self.client.post('/user/register', json=self.post_data_seller)
         response_message = response.get_json()['message']
         self.assertEqual(response_message, 'registered successfully')
     
     def test_username_should_be_unique(self):
-        _ = self.client.post('/register', json=self.post_data_buyer)
-        response = self.client.post('/register', json=self.post_data_buyer)
+        _ = self.client.post('/user/register', json=self.post_data_buyer)
+        response = self.client.post('/user/register', json=self.post_data_buyer)
         self.assertEqual(response.get_json()['message'], 
                          'username already exists. Please register with a different one')
     
@@ -76,7 +76,7 @@ class TestRegisterRoute(unittest.TestCase):
         post_data = {
             'password': 'password'
         }
-        response = self.client.post('/register', json=post_data)
+        response = self.client.post('/user/register', json=post_data)
         self.assertEqual(response.get_json()['message'],
                     'username not provided')
     
@@ -84,7 +84,7 @@ class TestRegisterRoute(unittest.TestCase):
         post_data = {
             'username': 'ronaldocr7'
         }
-        response = self.client.post('/register', json=post_data)
+        response = self.client.post('/user/register', json=post_data)
         self.assertEqual(response.get_json()['message'],
                     'password not provided')
 
@@ -93,7 +93,13 @@ class TestRegisterRoute(unittest.TestCase):
             'username': 'HaNuMaN',
             'password': 'jaishriram'
         }
-        _ = self.client.post('/register', json=post_data)
+        _ = self.client.post('/user/register', json=post_data)
         with self.app.app_context():
             test_user = User.query.filter_by(username=post_data['username']).first()
             self.assertEqual(test_user.role, 'buyer')
+
+    def test_register_hashes_password_before_storing(self):
+        _ = self.client.post('/user/register', json=self.post_data_seller)
+        with self.app.app_context():
+            user = User.query.filter_by(username=self.post_data_seller['username']).first()
+            self.assertTrue(bcrypt.check_password_hash(user.password, self.post_data_seller['password']))

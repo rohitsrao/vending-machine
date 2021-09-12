@@ -1,8 +1,9 @@
+import gc
 import json
 from flask import current_app, jsonify, request
 from flask import Blueprint
 
-from vending_machine import db
+from vending_machine import bcrypt,bcrypt,  db
 from vending_machine.models import User
 
 users = Blueprint('users', __name__)
@@ -39,7 +40,10 @@ def register():
         if username_already_exists(username):
             return jsonify(message='username already exists. Please register with a different one')
         if 'seller' in req and req['seller'] == True:
-            new_user = User(username=username, password=password, role='seller')
+            hashed_pw = bcrypt.generate_password_hash(password)
+            new_user = User(username=username, password=hashed_pw, role='seller')
+            del hashed_pw
+            gc.collect()
         else:
             new_user = User(username=username, password=password)
         with current_app.app_context():
