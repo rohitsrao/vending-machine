@@ -138,7 +138,7 @@ class TestRegisterRoute(unittest.TestCase):
         register_data = {
             'username': 'phineas458',
             'password': 'pkdudeisawesome',
-            'seller': False
+            'seller': True
         }
         login_data = {
             'username': 'phineas458',
