@@ -9,9 +9,30 @@ class TestRegisterRoute(unittest.TestCase):
 
     def setUp(self):
         self.app = create_app(TestConfig)
+        
         self.db = init_db(self.app)
+        with self.app.app_context():
+            self.db.create_all()
+        
         self.client = self.app.test_client()
         self.get_response = self.client.get('/register')
+        
+        self.post_data_buyer = {
+            'username': 'hummuslover',
+            'password': 'pw123',
+            'seller': False
+        }
+        
+        self.post_data_seller = {
+            'username': 'pikachu',
+            'password': 'password',
+            'seller': True
+        }
+    
+    def tearDown(self):
+        with self.app.app_context():
+            self.db.session.remove()
+            self.db.drop_all()
     
     def test_register_route_get_response_is_application_json(self):
         self.assertEqual(self.get_response.content_type, 'application/json')
@@ -21,31 +42,27 @@ class TestRegisterRoute(unittest.TestCase):
                          'Please send email, password and seller (bool) as a post request to /register. '\
                          'Set seller to False if you want to register as a buyer.')
     
-    def test_register_new_user_as_buyer(self):
-        post_data = {
-            'username': 'hummuslover',
-            'password': 'pw123',
-            'seller': False
-        }
-        response = self.client.post('/register', json=post_data)
-        response_message = response.get_json()['message']
+    def test_register_new_user_as_buyer_added_to_db(self):
+        _ = self.client.post('/register', json=self.post_data_buyer)
         with self.app.app_context():
-            self.db.create_all()
-            new_buyer = User.query.filter_by(username=post_data['username']).first()
+            new_buyer = User.query.filter_by(username=self.post_data_buyer['username']).first()
             self.assertIsNotNone(new_buyer)
-            self.assertEqual(new_buyer.username, post_data['username'])
+            self.assertEqual(new_buyer.username, self.post_data_buyer['username'])
+    
+    def test_register_new_user_as_seller_added_to_db(self):
+        _ = self.client.post('/register', json=self.post_data_seller)
+        with self.app.app_context():
+            new_seller = User.query.filter_by(username=self.post_data_seller['username']).first()
+            self.assertIsNotNone(new_seller)
+            self.assertEqual(new_seller.role, 'seller')
+    
+    def test_register_new_user_success_response_message(self):
+        response = self.client.post('/register', json=self.post_data_buyer)
+        response_message = response.get_json()['message']
+        self.assertEqual(response_message, 'registered successfully')
+        
+        response = self.client.post('/register', json=self.post_data_seller)
+        response_message = response.get_json()['message']
         self.assertEqual(response_message, 'registered successfully')
 
-    def test_register_new_user_as_seller(self):
-        post_data = {
-            'username': 'pikachu',
-            'password': 'password',
-            'seller': True
-        }
-        response = self.client.post('/register', json=post_data)
-        response_message = response.get_json()['message']
-        with self.app.app_context():
-            self.db.create_all()
-            new_seller = User.query.filter_by(username=post_data['username']).first()
-            self.assertEqual(new_seller.role, 'seller')
 
