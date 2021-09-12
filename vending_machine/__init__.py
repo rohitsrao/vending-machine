@@ -14,10 +14,13 @@ def create_app(config_class = Config):
     app.register_blueprint(products)
     app.register_blueprint(users)
     
+    db = init_db(app)
+    with app.app_context():
+        db.create_all()
+    
     return app
 
 def init_db(app):
     with app.app_context():
         db.init_app(app)
         return db
-
