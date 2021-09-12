@@ -70,6 +70,3 @@ class TestRegisterRoute(unittest.TestCase):
         _ = self.client.post('/register', json=self.post_data_buyer)
         with self.assertRaises(IntegrityError):
             _ = self.client.post('/register', json=self.post_data_buyer)
-
-
-
