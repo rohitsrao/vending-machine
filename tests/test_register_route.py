@@ -18,14 +18,13 @@ class TestRegisterRoute(unittest.TestCase):
     
     def test_register_route_get_response_has_instructions_to_register(self):
         self.assertEqual(self.get_response.get_json()['message'], 
-                         'Please send email, password, confirm_password and seller (bool) as a post request to /register. '\
+                         'Please send email, password and seller (bool) as a post request to /register. '\
                          'Set seller to False if you want to register as a buyer.')
     
-    def test_register_route_post_register_new_user_as_buyer(self):
+    def test_register_new_user_as_buyer(self):
         post_data = {
             "username": 'hummuslover',
             "password": 'pw123',
-            "confirm_password": 'pw123',
             "seller": False
         }
         response = self.client.post('/register', json=post_data)
@@ -36,3 +35,10 @@ class TestRegisterRoute(unittest.TestCase):
             self.assertIsNotNone(new_user)
             self.assertEqual(new_user.username, post_data['username'])
         self.assertEqual(response_message, 'registered successfully')
+
+    def test_register_new_user_as_seller(self):
+        post_data = {
+            'username': 'pikachu',
+            'password': 'password',
+        }
+

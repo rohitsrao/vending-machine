@@ -26,6 +26,6 @@ def register():
         )
     elif request.method == 'GET':
         return jsonify(
-            message = 'Please send email, password, confirm_password and seller (bool) as a post request to /register. '\
+            message = 'Please send email, password and seller (bool) as a post request to /register. '\
                       'Set seller to False if you want to register as a buyer.'
         )
