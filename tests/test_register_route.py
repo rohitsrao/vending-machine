@@ -87,3 +87,13 @@ class TestRegisterRoute(unittest.TestCase):
         response = self.client.post('/register', json=post_data)
         self.assertEqual(response.get_json()['message'],
                     'password not provided')
+
+    def test_register_post_request_without_seller_registers_as_buyer(self):
+        post_data = {
+            'username': 'HaNuMaN',
+            'password': 'jaishriram'
+        }
+        _ = self.client.post('/register', json=post_data)
+        with self.app.app_context():
+            test_user = User.query.filter_by(username=post_data['username']).first()
+            self.assertEqual(test_user.role, 'buyer')

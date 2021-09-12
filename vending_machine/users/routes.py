@@ -36,10 +36,9 @@ def register():
             return jsonify(message='password not provided')
         username = req['username']
         password = req['password']
-        seller = req['seller']
         if username_already_exists(username):
             return jsonify(message='username already exists. Please register with a different one')
-        if seller == True:
+        if 'seller' in req and req['seller'] == True:
             new_user = User(username=username, password=password, role='seller')
         else:
             new_user = User(username=username, password=password)
