@@ -87,7 +87,7 @@ class TestRegisterRoute(unittest.TestCase):
         response = self.client.post('/user/register', json=post_data)
         self.assertEqual(response.get_json()['message'],
                     'password not provided')
-
+    
     def test_register_post_request_without_seller_registers_as_buyer(self):
         post_data = {
             'username': 'HaNuMaN',
@@ -97,9 +97,24 @@ class TestRegisterRoute(unittest.TestCase):
         with self.app.app_context():
             test_user = User.query.filter_by(username=post_data['username']).first()
             self.assertEqual(test_user.role, 'buyer')
-
+    
     def test_register_hashes_password_before_storing(self):
         _ = self.client.post('/user/register', json=self.post_data_seller)
         with self.app.app_context():
             user = User.query.filter_by(username=self.post_data_seller['username']).first()
             self.assertTrue(bcrypt.check_password_hash(user.password, self.post_data_seller['password']))
+
+    def test_successful_login_returns_success_message(self):
+        register_data = {
+            'username': 'candaceowens767',
+            'password': 'Doofenshmirtz',
+            'seller': True
+        }
+        login_data = {
+            'username': 'candaceowens767',
+            'password': 'Doofenshmirtz'
+        }
+        _ = self.client.post('/user/register', json=register_data)
+        response = self.client.post('/user/login', json=login_data)
+        self.assertEqual(response.get_json()['message'],
+                         'login successful')

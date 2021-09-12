@@ -2,8 +2,9 @@ import gc
 import json
 from flask import current_app, jsonify, request
 from flask import Blueprint
+from flask_login import login_user
 
-from vending_machine import bcrypt,bcrypt,  db
+from vending_machine import bcrypt,  db
 from vending_machine.models import User
 
 users = Blueprint('users', __name__)
@@ -55,3 +56,14 @@ def register():
             message = 'Please send email, password and seller (bool) as a post request to /register. '\
                       'Set seller to False if you want to register as a buyer.'
         )
+
+@users.route('/login', methods=['POST'])
+def login():
+    if request.method == 'POST':
+        req = request.get_json()
+        username = req['username']
+        password = req['password']
+        user = User.query.filter_by(username=username).first()
+        if user and bcrypt.check_password_hash(user.password, password):
+            login_user(user)
+            return jsonify(message='login successful')
