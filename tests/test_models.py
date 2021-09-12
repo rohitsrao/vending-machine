@@ -25,7 +25,7 @@ class TestModels(unittest.TestCase):
     
     def test_User_repr_output_format(self):
         test_user = User(username='test_user', password='testpw123', deposit=0, role='buyer')
-        self.assertEqual(test_user.__repr__(), "User('test_user', 'testpw123', 0, 'buyer')")
+        self.assertEqual(test_user.__repr__(), "User('test_user', 0, 'buyer')")
     
     def test_User_created_with_default_float_zero_deposit(self):
         test_user = User(username='piakchu', password='&%!opkdfUI8', role='buyer')
