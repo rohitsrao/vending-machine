@@ -35,7 +35,7 @@ class TestModels(unittest.TestCase):
             user_db = User.query.filter_by(username=test_user.username).first()
             self.assertEqual(user_db.deposit, 0.0)
             self.assertIsInstance(user_db.deposit, float)
-
+    
     def test_user_created_with_default_buyer_role(self):
         test_user = User(username='Göthe', password='44444')
         with self.app.app_context():

@@ -1,6 +1,7 @@
 import json
 import unittest
 
+from sqlalchemy.exc import IntegrityError
 from test_config import TestConfig
 from vending_machine import create_app, init_db
 from vending_machine.models import User
@@ -64,5 +65,11 @@ class TestRegisterRoute(unittest.TestCase):
         response = self.client.post('/register', json=self.post_data_seller)
         response_message = response.get_json()['message']
         self.assertEqual(response_message, 'registered successfully')
+
+    def test_username_should_be_unique(self):
+        _ = self.client.post('/register', json=self.post_data_buyer)
+        with self.assertRaises(IntegrityError):
+            _ = self.client.post('/register', json=self.post_data_buyer)
+
 
 
