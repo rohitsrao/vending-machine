@@ -11,9 +11,13 @@ users = Blueprint('users', __name__)
 def register():
     if request.method == 'POST':
         req = request.get_json()
-        username = req["username"]
+        username = req['username']
         password = req['password']
-        new_user = User(username=username, password=password)
+        seller = req['seller']
+        if seller == True:
+            new_user = User(username=username, password=password, role='seller')
+        else:
+            new_user = User(username=username, password=password)
         with current_app.app_context():
             db.session.add(new_user)
             db.session.commit()
@@ -23,5 +27,5 @@ def register():
     elif request.method == 'GET':
         return jsonify(
             message = 'Please send email, password, confirm_password and seller (bool) as a post request to /register. '\
-                      'default seller is set to false i.e default role is a buyer'
+                      'Set seller to False if you want to register as a buyer.'
         )
