@@ -62,7 +62,7 @@ def register():
                       'Set seller to False if you want to register as a buyer.'
         )
 
-@users.route('/login', methods=['POST'])
+@users.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         req = request.get_json()
@@ -77,3 +77,5 @@ def login():
         elif bcrypt.check_password_hash(user.password, password):
             login_user(user)
             return jsonify(message='login successful')
+    elif request.method == 'GET':
+        return jsonify(message='please make valid post request with username and password')

@@ -167,3 +167,8 @@ class TestRegisterRoute(unittest.TestCase):
         response = self.client.post('/user/register', json=self.post_data_buyer)
         self.assertEqual(response.get_json()['message'],
                          'user already logged in')
+
+    def test_get_request_to_login_returns_instructions(self):
+        response = self.client.get('/user/login')
+        self.assertEqual(response.get_json()['message'], 
+                         'please make valid post request with username and password')
