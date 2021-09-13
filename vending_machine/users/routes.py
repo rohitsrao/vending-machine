@@ -7,23 +7,9 @@ from flask_login import current_user, login_user, logout_user
 from vending_machine import bcrypt,  db
 from vending_machine.models import User
 from vending_machine.users.validation import *
+from vending_machine.users.helper_functions import *
 
 users = Blueprint('users', __name__)
-
-def add_new_user_to_db(username, password, role):
-    hashed_pw = bcrypt.generate_password_hash(password).decode('utf-8')
-    new_user = User(username=username, password=hashed_pw, role=role)
-    del hashed_pw
-    gc.collect()
-    with current_app.app_context():
-        db.session.add(new_user)
-        db.session.commit()
-
-def extract_json_request(req):
-        username = req['username']
-        password = req['password']
-        role = req['role']
-        return (username, password, role)
 
 @users.route('/register', methods=['GET', 'POST'])
 def register():
@@ -145,12 +131,6 @@ def logout():
         return jsonify(message='user logged out successfully')
     else: 
         return jsonify(message='user not logged in')
-
-def compute_total_deposit(req):
-    total = 0
-    for coin in req:
-        total += int(coin) * req[coin]
-    return total
 
 @users.route('/deposit', methods=['POST'])
 def deposit_coins():
