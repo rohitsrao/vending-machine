@@ -6,8 +6,8 @@ from test_config import TestConfig
 from vending_machine import bcrypt, create_app, init_db
 from vending_machine.models import User
 
-class TestRegisterRoute(unittest.TestCase):
-
+class TestRegister(unittest.TestCase):
+    
     def setUp(self):
         self.app = create_app(TestConfig)
         
@@ -113,6 +113,22 @@ class TestRegisterRoute(unittest.TestCase):
         with self.app.app_context():
             user = User.query.filter_by(username=self.post_data_seller['username']).first()
             self.assertTrue(bcrypt.check_password_hash(user.password, self.post_data_seller['password']))
+
+class TestLogin(unittest.TestCase):
+    
+    def setUp(self):
+        self.app = create_app(TestConfig)
+        
+        self.db = init_db(self.app)
+        with self.app.app_context():
+            self.db.create_all()
+        
+        self.client = self.app.test_client()
+    
+    def tearDown(self):
+        with self.app.app_context():
+            self.db.session.remove()
+            self.db.drop_all()
     
     def test_successful_login_returns_success_message(self):
         register_data = {
@@ -158,6 +174,122 @@ class TestRegisterRoute(unittest.TestCase):
         response = self.client.post('/user/login', json=login_data)
         self.assertEqual(response.get_json()['message'],
                          'login attempt failed due to incorrect password')
+ 
+class TestLogout(unittest.TestCase):
+    
+    def setUp(self):
+        self.app = create_app(TestConfig)
+        
+        self.db = init_db(self.app)
+        with self.app.app_context():
+            self.db.create_all()
+        
+        self.client = self.app.test_client()
+        
+        self.post_data_seller = {
+            'username': 'pikachu',
+            'password': 'password',
+            'seller': True
+        }
+        
+        self.post_data_seller_login = {
+            'username': 'pikachu',
+            'password': 'password',
+        }
+    
+    def tearDown(self):
+        with self.app.app_context():
+            self.db.session.remove()
+            self.db.drop_all()
+    
+    def test_get_request_to_logout_without_logging_in_returns_message(self):
+        response = self.client.get('/user/logout')
+        self.assertEqual(response.get_json()['message'], 'user not logged in')
+    
+    def test_get_request_to_logout_after_being_logged_in_returns_success_message(self):
+        _ = self.client.post('/user/register', json=self.post_data_seller)
+        _ = self.client.post('/user/login', json=self.post_data_seller_login)
+        response = self.client.get('/user/logout')
+        self.assertEqual(response.get_json()['message'],
+                         'user logged out successfully')
+
+class TestAccount(unittest.TestCase):
+    
+    def setUp(self):
+        self.app = create_app(TestConfig)
+        
+        self.db = init_db(self.app)
+        with self.app.app_context():
+            self.db.create_all()
+        
+        self.client = self.app.test_client()
+        self.get_response = self.client.get('/user/register')
+        
+        self.post_data_buyer = {
+            'username': 'hummuslover',
+            'password': 'pw123',
+            'seller': False
+        }
+     
+        self.post_data_buyer_login = {
+            'username': 'hummuslover',
+            'password': 'pw123',
+        }
+        
+        self.post_data_seller = {
+            'username': 'pikachu',
+            'password': 'password',
+            'seller': True
+        }
+        
+        self.post_data_seller_login = {
+            'username': 'pikachu',
+            'password': 'password',
+        }
+    
+    def tearDown(self):
+        with self.app.app_context():
+            self.db.session.remove()
+            self.db.drop_all()
+
+class TestRequestsIfLoggedInOrNot(unittest.TestCase):
+    
+    def setUp(self):
+        self.app = create_app(TestConfig)
+        
+        self.db = init_db(self.app)
+        with self.app.app_context():
+            self.db.create_all()
+        
+        self.client = self.app.test_client()
+        self.get_response = self.client.get('/user/register')
+        
+        self.post_data_buyer = {
+            'username': 'hummuslover',
+            'password': 'pw123',
+            'seller': False
+        }
+     
+        self.post_data_buyer_login = {
+            'username': 'hummuslover',
+            'password': 'pw123',
+        }
+        
+        self.post_data_seller = {
+            'username': 'pikachu',
+            'password': 'password',
+            'seller': True
+        }
+        
+        self.post_data_seller_login = {
+            'username': 'pikachu',
+            'password': 'password',
+        }
+    
+    def tearDown(self):
+        with self.app.app_context():
+            self.db.session.remove()
+            self.db.drop_all()
     
     def test_get_request_to_register_when_logged_in_returns_message(self):
         _ = self.client.post('/user/register', json=self.post_data_buyer)
@@ -167,9 +299,9 @@ class TestRegisterRoute(unittest.TestCase):
                          'user already logged in')
     
     def test_post_request_to_register_when_logged_in_returns_message(self):
-        _ = self.client.post('/user/register', json=self.post_data_buyer)
-        _ = self.client.post('/user/login', json=self.post_data_buyer_login)
-        response = self.client.post('/user/register', json=self.post_data_buyer)
+        _ = self.client.post('/user/register', json=self.post_data_seller)
+        _ = self.client.post('/user/login', json=self.post_data_seller_login)
+        response = self.client.post('/user/register', json=self.post_data_seller)
         self.assertEqual(response.get_json()['message'],
                          'user already logged in')
     
@@ -186,20 +318,11 @@ class TestRegisterRoute(unittest.TestCase):
                          'user already logged in')
     
     def test_put_request_to_login_when_logged_in_returns_message(self):
-        _ = self.client.post('/user/register', json=self.post_data_buyer)
-        _ = self.client.post('/user/login', json=self.post_data_buyer_login)
-        response = self.client.post('/user/login', json=self.post_data_buyer_login)
-        self.assertEqual(response.get_json()['message'],
-                         'user already logged in')
-    
-    def test_get_request_to_logout_without_logging_in_returns_message(self):
-        response = self.client.get('/user/logout')
-        self.assertEqual(response.get_json()['message'], 'user not logged in')
-    
-    def test_get_request_to_logout_after_being_logged_in_returns_success_message(self):
         _ = self.client.post('/user/register', json=self.post_data_seller)
         _ = self.client.post('/user/login', json=self.post_data_seller_login)
-        response = self.client.get('/user/logout')
+        response = self.client.post('/user/login', json=self.post_data_seller_login)
         self.assertEqual(response.get_json()['message'],
-                         'user logged out successfully')
+                         'user already logged in')
 
+if __name__ == '__main__':
+    unittest.main()
