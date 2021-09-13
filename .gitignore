@@ -1,6 +1,6 @@
-env/
-
+test.db
 *.pyc
-__pycache__/
 
+env/
+__pycache__/
 *.egg-info/
