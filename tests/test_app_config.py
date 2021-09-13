@@ -16,3 +16,5 @@ class TestRootRoute(unittest.TestCase):
             print(self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'])
             self.assertEqual(self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'], False)
 
+if __name__ == '__main__':
+    unittest.main()

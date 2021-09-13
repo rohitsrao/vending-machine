@@ -57,3 +57,6 @@ class TestModels(unittest.TestCase):
             self.db.session.commit()
             test_product = Product(productName='KitKat', amountAvailable=3, cost=4.75, sellerId=test_user.id)
         self.assertEqual(test_product.__repr__(), "Product('KitKat', 3, 4.75, 1)")
+
+if __name__ == '__main__':
+    unittest.main()

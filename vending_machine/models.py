@@ -20,7 +20,7 @@ class Product(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     productName = db.Column(db.String(128))
     amountAvailable = db.Column(db.Integer)
-    cost = db.Column(db.Float)
+    cost = db.Column(db.Integer)
     sellerId = db.Column(db.Integer, db.ForeignKey('user.id'))
     
     def __repr__(self):

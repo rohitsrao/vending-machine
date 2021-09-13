@@ -14,8 +14,10 @@ def create_app(config_class = Config):
     app.config.from_object(config_class)
     
     from vending_machine.products.routes import products
+    from vending_machine.product.routes import product
     from vending_machine.users.routes import users
     app.register_blueprint(products)
+    app.register_blueprint(product, url_prefix='/product')
     app.register_blueprint(users, url_prefix='/user')
     
     with app.app_context():

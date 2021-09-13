@@ -16,3 +16,6 @@ class TestRootRoute(unittest.TestCase):
     def test_get_response_contains_products(self):
         json_response = self.client.get('/').get_json()
         self.assertIn('products', json_response.keys())
+
+if __name__ == '__main__':
+    unittest.main()
