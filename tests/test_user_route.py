@@ -23,6 +23,11 @@ class TestRegisterRoute(unittest.TestCase):
             'password': 'pw123',
             'seller': False
         }
+     
+        self.post_data_buyer_login = {
+            'username': 'hummuslover',
+            'password': 'pw123',
+        }
         
         self.post_data_seller = {
             'username': 'pikachu',
@@ -148,3 +153,10 @@ class TestRegisterRoute(unittest.TestCase):
         response = self.client.post('/user/login', json=login_data)
         self.assertEqual(response.get_json()['message'],
                          'login attempt failed due to incorrect password')
+
+    def test_get_request_to_register_when_logged_in_returns_message(self):
+        _ = self.client.post('/user/register', json=self.post_data_buyer)
+        _ = self.client.post('/user/login', json=self.post_data_buyer_login)
+        response = self.client.get('/user/register')
+        self.assertEqual(response.get_json()['message'],
+                         'user already logged in')

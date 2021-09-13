@@ -2,7 +2,7 @@ import gc
 import json
 from flask import current_app, jsonify, request
 from flask import Blueprint
-from flask_login import login_user
+from flask_login import current_user, login_user
 
 from vending_machine import bcrypt,  db
 from vending_machine.models import User
@@ -30,6 +30,8 @@ def password_missing(req):
 
 @users.route('/register', methods=['GET', 'POST'])
 def register():
+    if current_user.is_authenticated:
+        return jsonify(message='user already logged in')
     if request.method == 'POST':
         req = request.get_json()
         if username_missing(req):
