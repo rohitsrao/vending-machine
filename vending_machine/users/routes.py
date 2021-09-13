@@ -102,6 +102,26 @@ def update_password():
     else: 
         return jsonify(message='user must be logged in to update password')
 
+@users.route('/account/delete', methods=['DELETE'])
+def delete_account():
+    if current_user.is_authenticated:
+        req = request.get_json()
+        password = req['password']
+        if password == None:
+            return jsonify(message='Null password received. Account cannot be deleted without password confirmation.')
+        elif password == '':
+            return jsonify(message='Empty password received. Account cannot be deleted without password confirmation.')
+        elif not bcrypt.check_password_hash(current_user.password, password):
+            return jsonify(message='password incorrect. Please check and try again')
+        else:
+            user = User.query.filter_by(username=current_user.username).first()
+            with current_app.app_context():
+                db.session.delete(user)
+                db.session.commit()
+            return jsonify(message='user account deleted')
+    else:
+        return jsonify(message='user must be logged in to delete account')
+
 @users.route('/account/update_role', methods=['PATCH'])
 def update_role():
     if current_user.is_authenticated:

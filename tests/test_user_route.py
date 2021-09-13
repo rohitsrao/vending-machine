@@ -327,6 +327,49 @@ class TestAccount(unittest.TestCase):
             self.assertEqual(updated_user.role, patch_data['role'])
             self.assertEqual(response.get_json()['message'], 'role updated')
 
+    def test_delete_account_request_with_null_password_returns_failure_message(self):
+        _ = self.client.post('/user/register', json=self.post_data_seller)
+        _ = self.client.post('/user/login', json=self.post_data_seller_login)
+        delete_data = {
+            'password': None
+        }
+        response = self.client.delete('/user/account/delete', json=delete_data)
+        self.assertEqual(response.get_json()['message'],
+                         'Null password received. Account cannot be deleted without password confirmation.')
+    
+    def test_delete_account_request_with_empty_password_returns_failure_message(self):
+        _ = self.client.post('/user/register', json=self.post_data_seller)
+        _ = self.client.post('/user/login', json=self.post_data_seller_login)
+        delete_data = {
+            'password': ''
+        }
+        response = self.client.delete('/user/account/delete', json=delete_data)
+        self.assertEqual(response.get_json()['message'],
+                         'Empty password received. Account cannot be deleted without password confirmation.')
+
+    def test_delete_account_given_incorrect_password(self):
+        _ = self.client.post('/user/register', json=self.post_data_buyer)
+        _ = self.client.post('/user/login', json=self.post_data_buyer_login)
+        delete_data =  {
+            'password': 'BillionsOfBlueBlisteringBarnacles'
+        }
+        response = self.client.delete('/user/account/delete', json=delete_data)
+        self.assertEqual(response.get_json()['message'], 
+                         'password incorrect. Please check and try again' )
+
+    def test_delete_account_given_valid_password(self):
+        _ = self.client.post('/user/register', json=self.post_data_buyer)
+        _ = self.client.post('/user/login', json=self.post_data_buyer_login)
+        delete_data =  {
+            'password': self.post_data_buyer['password']
+        }
+        response = self.client.delete('/user/account/delete', json=delete_data)
+        self.assertEqual(response.get_json()['message'],
+                         'user account deleted')
+        with self.app.app_context():
+            deleted_user = User.query.filter_by(username=self.post_data_buyer['username']).first()
+            self.assertIsNone(deleted_user)
+
 class TestRequestsIfLoggedIn(unittest.TestCase):
     
     def setUp(self):
@@ -422,6 +465,15 @@ class TestRequestsIfLoggedIn(unittest.TestCase):
         response = self.client.patch('/user/account/update_role', json=patch_data)
         self.assertEqual(response.get_json()['message'],
                          'user must be logged in to update role')
+
+    def test_delete_request_to_account_delete_without_logging_in_returns_failure_message(self):
+        _ = self.client.post('/user/register', json=self.post_data_seller)
+        delete_data = {
+            'password': self.post_data_seller['password']
+        }
+        response = self.client.delete('/user/account/delete', json=delete_data)
+        self.assertEqual(response.get_json()['message'],
+                         'user must be logged in to delete account')
 
 if __name__ == '__main__':
     unittest.main()
