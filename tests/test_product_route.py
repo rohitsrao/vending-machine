@@ -2,7 +2,7 @@ import unittest
 
 from test_config import TestConfig
 from vending_machine import create_app, init_db
-from vending_machine.models import Product
+from vending_machine.models import Product, User
 
 class TestProductRoute(unittest.TestCase):
 
@@ -47,6 +47,20 @@ class TestProductRoute(unittest.TestCase):
         with self.app.app_context():
             product = Product.query.filter_by(productName=self.product_data['productName']).first()
             self.assertIsNotNone(product)
+
+    def test_add_product_has_current_seller_id(self):
+        response = self.client.post('/product/add', json=self.product_data)
+        with self.app.app_context():
+            product = Product.query.filter_by(productName=self.product_data['productName']).first()
+            user = User.query.filter_by(username=self.post_data_seller['username']).first()
+            self.assertEqual(product.sellerId, user.id)
+
+    def test_added_product_shows_up_under_user_products_sold(self):
+        response = self.client.post('/product/add', json=self.product_data)
+        with self.app.app_context():
+            product = Product.query.filter_by(productName=self.product_data['productName']).first()
+            user = User.query.filter_by(username=self.post_data_seller['username']).first()
+            self.assertTrue(product in user.products_sold)
 
 if __name__ == '__main__':
     unittest.main()
