@@ -34,6 +34,11 @@ class TestRegisterRoute(unittest.TestCase):
             'password': 'password',
             'seller': True
         }
+        
+        self.post_data_seller_login = {
+            'username': 'pikachu',
+            'password': 'password',
+        }
     
     def tearDown(self):
         with self.app.app_context():
@@ -172,3 +177,18 @@ class TestRegisterRoute(unittest.TestCase):
         response = self.client.get('/user/login')
         self.assertEqual(response.get_json()['message'], 
                          'please make valid post request with username and password')
+
+    def test_get_request_to_login_when_logged_in_returns_message(self):
+        _ = self.client.post('/user/register', json=self.post_data_buyer)
+        _ = self.client.post('/user/login', json=self.post_data_buyer_login)
+        response = self.client.get('/user/login')
+        self.assertEqual(response.get_json()['message'],
+                         'user already logged in')
+    
+    def test_put_request_to_login_when_logged_in_returns_message(self):
+        _ = self.client.post('/user/register', json=self.post_data_buyer)
+        _ = self.client.post('/user/login', json=self.post_data_buyer_login)
+        response = self.client.post('/user/login', json=self.post_data_buyer_login)
+        self.assertEqual(response.get_json()['message'],
+                         'user already logged in')
+

@@ -64,6 +64,8 @@ def register():
 
 @users.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        return jsonify(message='user already logged in')
     if request.method == 'POST':
         req = request.get_json()
         username = req['username']
