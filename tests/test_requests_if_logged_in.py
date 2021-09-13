@@ -198,7 +198,7 @@ class TestRequestsIfLoggedIn(unittest.TestCase):
         response = self.client.delete('/product/1/delete')
         self.assertEqual(response.get_json()['message'],
                          'user must be a seller to delete product')
-
+    
     def test_deposit_without_logging_in_returns_error_message(self):
         deposit_data = {
             '5': 1,
@@ -210,7 +210,7 @@ class TestRequestsIfLoggedIn(unittest.TestCase):
         response = self.client.post('/user/deposit', json=deposit_data)
         self.assertEqual(response.get_json()['message'],
                          'user must be logged in to deposit')
-
+    
     def test_deposit_while_logged_in_as_seller_returns_error_message(self):
         deposit_data = {
             '5': 1,
@@ -224,6 +224,40 @@ class TestRequestsIfLoggedIn(unittest.TestCase):
         response = self.client.post('/user/deposit', json=deposit_data)
         self.assertEqual(response.get_json()['message'],
                          'user must be a seller to deposit')
+
+    def test_reset_deposit_without_logging_in_returns_error_message(self):
+        deposit_data = {
+            '5': 3,
+            '10': 1,
+            '20': 5,
+            '50': 2,
+            '100': 5
+        }
+        _ = self.client.post('/user/register', json=self.post_data_buyer)
+        _ = self.client.post('/user/login', json=self.post_data_buyer_login)
+        _ = self.client.post('/user/deposit', json=deposit_data)
+        _ = self.client.get('/user/logout')
+        response = self.client.get('/user/deposit/reset')
+        self.assertEqual(response.get_json()['message'],
+                         'user must be logged in to reset deposit')
+
+    def test_reset_deposit_while_logged_in_as_seller_returns_error_message(self):
+        deposit_data = {
+            '5': 3,
+            '10': 1,
+            '20': 5,
+            '50': 2,
+            '100': 5
+        }
+        _ = self.client.post('/user/register', json=self.post_data_buyer)
+        _ = self.client.post('/user/login', json=self.post_data_buyer_login)
+        _ = self.client.post('/user/deposit', json=deposit_data)
+        _ = self.client.get('/user/logout')
+        _ = self.client.post('/user/register', json=self.post_data_seller)
+        _ = self.client.post('/user/login', json=self.post_data_seller_login)
+        response = self.client.get('/user/deposit/reset')
+        self.assertEqual(response.get_json()['message'],
+                         'user must be a buyer to reset deposit')
 
 if __name__ == '__main__':
     unittest.main()

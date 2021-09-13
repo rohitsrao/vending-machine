@@ -146,3 +146,16 @@ def deposit_coins():
                 db.session.commit()
             return jsonify(message='deposit successful')
     else: return jsonify(message='user must be logged in to deposit')
+
+@users.route('/deposit/reset', methods=['GET'])
+def reset_deposit():
+    if current_user.is_authenticated:
+        if current_user.role != 'buyer': 
+            return jsonify(message='user must be a buyer to reset deposit')
+        else:
+            with current_app.app_context():
+                user = User.query.get(current_user.id)
+                user.deposit = 0.0
+                db.session.commit()
+            return jsonify(message='deposit reset')
+    else: return jsonify(message='user must be logged in to reset deposit')
