@@ -62,6 +62,31 @@ def register():
                       'Set seller to False if you want to register as a buyer.'
         )
 
+@users.route('/account', methods=['GET'])
+def account():
+    if current_user.is_authenticated:
+        return jsonify(
+            username = current_user.username,
+            deposit = current_user.deposit,
+            role = current_user.role
+        )
+    else:
+        return jsonify(message='user must be logged in to access this page')
+
+@users.route('/account/update_username', methods=['PATCH'])
+def update_username():
+    if current_user.is_authenticated:
+        req = request.get_json()
+        new_username = req['username']
+        if username_exists(new_username):
+            return jsonify(message='new username already exists. Please choose a different one.')
+        user = User.query.filter_by(username=current_user.username).first()
+        user.username = new_username
+        db.session.commit()
+        return jsonify(message='username updated')
+    else:
+        return jsonify(message='user must be logged in to update username')
+
 @users.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -73,7 +98,6 @@ def login():
         if not username_exists(username):
             return jsonify(message='login attempt failed due to incorrect username')
         user = User.query.filter_by(username=username).first()
-        print(user.password)
         if not bcrypt.check_password_hash(user.password, password):
             return jsonify(message='login attempt failed due to incorrect password')
         elif bcrypt.check_password_hash(user.password, password):

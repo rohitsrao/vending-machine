@@ -130,6 +130,11 @@ class TestLogin(unittest.TestCase):
             self.db.session.remove()
             self.db.drop_all()
     
+    def test_get_request_to_login_returns_instructions(self):
+        response = self.client.get('/user/login')
+        self.assertEqual(response.get_json()['message'], 
+                         'please make valid post request with username and password')
+    
     def test_successful_login_returns_success_message(self):
         register_data = {
             'username': 'candaceowens767',
@@ -251,8 +256,54 @@ class TestAccount(unittest.TestCase):
         with self.app.app_context():
             self.db.session.remove()
             self.db.drop_all()
+    
+    def test_get_request_for_buyer_displays_account_data(self):
+        _ = self.client.post('/user/register', json=self.post_data_buyer)
+        _ = self.client.post('/user/login', json=self.post_data_buyer_login)
+        response = self.client.get('/user/account')
+        expected_response = {
+            'username': self.post_data_buyer['username'],
+            'deposit': 0.0,
+            'role': 'buyer'
+        }
+        self.assertEqual(response.get_json(), expected_response)
+    
+    def test_get_request_for_seller_displays_account_data(self):
+        _ = self.client.post('/user/register', json=self.post_data_seller)
+        _ = self.client.post('/user/login', json=self.post_data_seller_login)
+        response = self.client.get('/user/account')
+        expected_response = {
+            'username': self.post_data_seller['username'],
+            'deposit': 0.0,
+            'role': 'seller'
+        }
+        self.assertEqual(response.get_json(), expected_response)
+    
+    def test_patch_request_to_update_username(self):
+        _ = self.client.post('/user/register', json=self.post_data_buyer)
+        _ = self.client.post('/user/login', json=self.post_data_buyer_login)
+        patch_data = {
+            'username': 'theStig'
+        }
+        with self.app.app_context():
+            user = User.query.filter_by(username=self.post_data_buyer['username']).first()
+            response = self.client.patch('/user/account/update_username', json=patch_data)
+            updated_user = User.query.filter_by(username=patch_data['username']).first()
+            self.assertEqual(updated_user.id, user.id)
+            self.assertEqual(response.get_json()['message'], 'username updated')
+    
+    def test_patch_request_to_update_username_must_be_unique(self):
+        _ = self.client.post('/user/register', json=self.post_data_buyer)
+        _ = self.client.post('/user/register', json=self.post_data_seller)
+        _ = self.client.post('/user/login', json=self.post_data_buyer_login)
+        patch_data = {
+            'username': self.post_data_seller['username']
+        }
+        response = self.client.patch('/user/account/update_username', json=patch_data)
+        self.assertEqual(response.get_json()['message'],
+                         'new username already exists. Please choose a different one.')
 
-class TestRequestsIfLoggedInOrNot(unittest.TestCase):
+class TestRequestsIfLoggedIn(unittest.TestCase):
     
     def setUp(self):
         self.app = create_app(TestConfig)
@@ -305,11 +356,6 @@ class TestRequestsIfLoggedInOrNot(unittest.TestCase):
         self.assertEqual(response.get_json()['message'],
                          'user already logged in')
     
-    def test_get_request_to_login_returns_instructions(self):
-        response = self.client.get('/user/login')
-        self.assertEqual(response.get_json()['message'], 
-                         'please make valid post request with username and password')
-    
     def test_get_request_to_login_when_logged_in_returns_message(self):
         _ = self.client.post('/user/register', json=self.post_data_buyer)
         _ = self.client.post('/user/login', json=self.post_data_buyer_login)
@@ -323,6 +369,19 @@ class TestRequestsIfLoggedInOrNot(unittest.TestCase):
         response = self.client.post('/user/login', json=self.post_data_seller_login)
         self.assertEqual(response.get_json()['message'],
                          'user already logged in')
+
+    def test_get_request_to_account_without_logging_returns_message(self):
+        response = self.client.get('/user/account')
+        self.assertEqual(response.get_json()['message'],
+                         'user must be logged in to access this page')
+
+    def test_patch_request_to_updated_username_without_logging_in_returns_failure_message(self):
+        patch_data = {
+            'username': 'theStig'
+        }
+        response = self.client.patch('/user/account/update_username', json=patch_data)
+        self.assertEqual(response.get_json()['message'],
+                         'user must be logged in to update username')
 
 if __name__ == '__main__':
     unittest.main()
