@@ -98,7 +98,7 @@ class TestRegister(unittest.TestCase):
         self.assertEqual(response.get_json()['message'],
                     'password not provided')
     
-    def test_register_post_request_without_seller_registers_as_buyer(self):
+    def test_register_post_request_without_role_key_in_json_request(self):
         post_data = {
             'username': 'HaNuMaN',
             'password': 'jaishriram'
@@ -106,7 +106,7 @@ class TestRegister(unittest.TestCase):
         _ = self.client.post('/user/register', json=post_data)
         with self.app.app_context():
             test_user = User.query.filter_by(username=post_data['username']).first()
-            self.assertEqual(test_user.role, 'buyer')
+            self.assertEqual(test_user.role, 'buyer)
     
     def test_register_hashes_password_before_storing(self):
         _ = self.client.post('/user/register', json=self.post_data_seller)
@@ -314,7 +314,7 @@ class TestAccount(unittest.TestCase):
             updated_user = User.query.filter_by(username=self.post_data_seller['username']).first()
             self.assertTrue(bcrypt.check_password_hash(updated_user.password, patch_data['password']))
             self.assertEqual(response.get_json()['message'], 'password updated')
-
+    
     def test_patch_request_to_update_role(self):
         _ = self.client.post('/user/register', json=self.post_data_buyer)
         _ = self.client.post('/user/login', json=self.post_data_buyer_login)
@@ -326,7 +326,7 @@ class TestAccount(unittest.TestCase):
             updated_user = User.query.filter_by(username=self.post_data_buyer['username']).first()
             self.assertEqual(updated_user.role, patch_data['role'])
             self.assertEqual(response.get_json()['message'], 'role updated')
-
+    
     def test_delete_account_request_with_null_password_returns_failure_message(self):
         _ = self.client.post('/user/register', json=self.post_data_seller)
         _ = self.client.post('/user/login', json=self.post_data_seller_login)
@@ -346,7 +346,7 @@ class TestAccount(unittest.TestCase):
         response = self.client.delete('/user/account/delete', json=delete_data)
         self.assertEqual(response.get_json()['message'],
                          'Empty password received. Account cannot be deleted without password confirmation.')
-
+    
     def test_delete_account_given_incorrect_password(self):
         _ = self.client.post('/user/register', json=self.post_data_buyer)
         _ = self.client.post('/user/login', json=self.post_data_buyer_login)
@@ -356,7 +356,7 @@ class TestAccount(unittest.TestCase):
         response = self.client.delete('/user/account/delete', json=delete_data)
         self.assertEqual(response.get_json()['message'], 
                          'password incorrect. Please check and try again' )
-
+    
     def test_delete_account_given_valid_password(self):
         _ = self.client.post('/user/register', json=self.post_data_buyer)
         _ = self.client.post('/user/login', json=self.post_data_buyer_login)
@@ -436,12 +436,12 @@ class TestRequestsIfLoggedIn(unittest.TestCase):
         response = self.client.post('/user/login', json=self.post_data_seller_login)
         self.assertEqual(response.get_json()['message'],
                          'user already logged in')
-
+    
     def test_get_request_to_account_without_logging_returns_message(self):
         response = self.client.get('/user/account')
         self.assertEqual(response.get_json()['message'],
                          'user must be logged in to access this page')
-
+    
     def test_patch_request_to_update_username_without_logging_in_returns_failure_message(self):
         patch_data = {
             'username': 'theStig'
@@ -449,7 +449,7 @@ class TestRequestsIfLoggedIn(unittest.TestCase):
         response = self.client.patch('/user/account/update_username', json=patch_data)
         self.assertEqual(response.get_json()['message'],
                          'user must be logged in to update username')
-
+    
     def test_patch_request_to_update_username_without_logging_in_returns_failure_message(self):
         patch_data = {
             'password': 'ThisIsTheNewPassword456'
@@ -457,7 +457,7 @@ class TestRequestsIfLoggedIn(unittest.TestCase):
         response = self.client.patch('/user/account/update_password', json=patch_data)
         self.assertEqual(response.get_json()['message'],
                          'user must be logged in to update password')
-
+    
     def test_patch_request_to_update_role_without_logging_in_returns_failure_message(self):
         patch_data = {
             'role': 'seller'
@@ -465,7 +465,7 @@ class TestRequestsIfLoggedIn(unittest.TestCase):
         response = self.client.patch('/user/account/update_role', json=patch_data)
         self.assertEqual(response.get_json()['message'],
                          'user must be logged in to update role')
-
+    
     def test_delete_request_to_account_delete_without_logging_in_returns_failure_message(self):
         _ = self.client.post('/user/register', json=self.post_data_seller)
         delete_data = {
