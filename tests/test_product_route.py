@@ -62,5 +62,18 @@ class TestProductRoute(unittest.TestCase):
             user = User.query.filter_by(username=self.post_data_seller['username']).first()
             self.assertTrue(product in user.products_sold)
 
+    def test_view_product_details(self):
+        _ = self.client.post('/product/add', json=self.product_data)
+        response = self.client.get('/product/1')
+        expected_response = {
+            'productName': 'Coca Cola 0.3L',
+            'amountAvailable': 10,
+            'cost': 100,
+            'sellerId': 1
+        }
+        self.assertEqual(response.get_json(), expected_response)
+
+
+
 if __name__ == '__main__':
     unittest.main()

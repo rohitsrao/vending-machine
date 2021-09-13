@@ -29,3 +29,14 @@ def add_product():
         return jsonify(message='product added')
     else:
         return jsonify(message='user must be logged in to add a new product')
+
+@product.route('/<int:product_id>', methods=['GET'])
+def product_details(product_id):
+    product = Product.query.get(product_id)
+    response_json = {
+        'productName' : product.productName,
+        'amountAvailable': product.amountAvailable,
+        'cost': product.cost,
+        'sellerId': product.sellerId
+    }
+    return jsonify(response_json)
