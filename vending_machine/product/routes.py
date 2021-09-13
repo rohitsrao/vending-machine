@@ -46,11 +46,16 @@ def product_details(product_id):
 
 @product.route('/<int:product_id>/update', methods=['PUT'])
 def update_product_details(product_id):
-    req = request.get_json()
-    product = Product.query.get(product_id)
-    with current_app.app_context():
-        product.productName = req['productName']
-        product.amountAvailable = req['amountAvailable']
-        product.cost = req['cost']
-        db.session.commit()
-    return jsonify(message='product details updated')
+    if current_user.is_authenticated:
+        if current_user.role != 'seller':
+            return jsonify(message='user must be a seller to update product')
+        req = request.get_json()
+        product = Product.query.get(product_id)
+        with current_app.app_context():
+            product.productName = req['productName']
+            product.amountAvailable = req['amountAvailable']
+            product.cost = req['cost']
+            db.session.commit()
+        return jsonify(message='product details updated')
+    else:
+        return jsonify(message='user must be logged in to update product')
