@@ -51,6 +51,8 @@ def update_product_details(product_id):
             return jsonify(message='user must be a seller to update product')
         req = request.get_json()
         product = Product.query.get(product_id)
+        if current_user.id != product.sellerId:
+            return jsonify(message='seller id of current user does not match seller id of product')
         with current_app.app_context():
             product.productName = req['productName']
             product.amountAvailable = req['amountAvailable']

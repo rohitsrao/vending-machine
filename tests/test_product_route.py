@@ -95,5 +95,44 @@ class TestProductRoute(unittest.TestCase):
             self.assertEqual(product.amountAvailable, updated_product_data['amountAvailable'])
             self.assertEqual(product.cost, updated_product_data['cost'])
 
+    def test_put_request_as_different_seller_from_product_returns_error_message(self):
+        seller1_data = {
+            'username': 'seller1',
+            'password': 'pw1',
+            'seller': True
+        }
+        seller1_login_data = {
+            'username': 'seller1',
+            'password': 'pw1'
+        }
+        seller2_data = {
+            'username': 'seller2',
+            'password': 'pw2',
+            'seller': True
+        }
+        seller2_login_data = {
+            'username': 'seller2',
+            'password': 'pw2'
+        }
+        product_data = {
+            'productName': 'product1',
+            'amountAvailable': 8,
+            'cost': 75
+        }
+        updated_product_data = {
+            'productName': 'updated_product1',
+            'amountAvailable': 8,
+            'cost': 75
+        }
+        _ = self.client.post('/user/register', json=seller1_data)
+        _ = self.client.post('/user/login', json=seller1_login_data)
+        _ = self.client.post('/product/add', json=product_data)
+        _ = self.client.get('/user/logout')
+        _ = self.client.post('/user/register', json=seller2_data)
+        _ = self.client.post('/user/login', json=seller2_login_data)
+        response = self.client.put('/product/1/update', json=updated_product_data)
+        self.assertEqual(response.get_json()['message'],
+                         'seller id of current user does not match seller id of product')
+
 if __name__ == '__main__':
     unittest.main()

@@ -106,7 +106,7 @@ class TestRequestsIfLoggedIn(unittest.TestCase):
         response = self.client.delete('/user/account/delete', json=delete_data)
         self.assertEqual(response.get_json()['message'],
                          'user must be logged in to delete account')
-
+    
     def test_product_add_without_login_returns_failure_message(self):
         product_data = {
             'productName': 'Coca Cola 0.3L',
@@ -116,7 +116,7 @@ class TestRequestsIfLoggedIn(unittest.TestCase):
         response = self.client.post('/product/add', json=product_data)
         self.assertEqual(response.get_json()['message'],
                          'user must be logged in to add a new product')
-
+    
     def test_add_product_logged_in_as_buyer_returns_failure_message(self):
         _ = self.client.post('/user/register', json=self.post_data_buyer)
         _ = self.client.post('/user/login', json=self.post_data_buyer_login)
@@ -128,7 +128,7 @@ class TestRequestsIfLoggedIn(unittest.TestCase):
         response = self.client.post('/product/add', json=product_data)
         self.assertEqual(response.get_json()['message'],
                          'user must be a seller to add a new product')
-
+    
     def test_put_request_without_logging_in_returns_failure_message(self):
         _ = self.client.post('/user/register', json=self.post_data_seller)
         _ = self.client.post('/user/login', json=self.post_data_seller_login)
@@ -147,7 +147,7 @@ class TestRequestsIfLoggedIn(unittest.TestCase):
         response = self.client.put('/product/1/update', json=updated_product_data)
         self.assertEqual(response.get_json()['message'],
                          'user must be logged in to update product')
-
+    
     def test_put_request_as_buyer_returns_failure_message(self):
         _ = self.client.post('/user/register', json=self.post_data_seller)
         _ = self.client.post('/user/login', json=self.post_data_seller_login)
@@ -169,5 +169,5 @@ class TestRequestsIfLoggedIn(unittest.TestCase):
         self.assertEqual(response.get_json()['message'],
                          'user must be a seller to update product')
 
-#if __name__ == '__main__':
-#    unittest.main()
+if __name__ == '__main__':
+    unittest.main()
