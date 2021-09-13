@@ -2,7 +2,7 @@ import gc
 import json
 from flask import current_app, jsonify, request
 from flask import Blueprint
-from flask_login import current_user, login_user
+from flask_login import current_user, login_user, logout_user
 
 from vending_machine import bcrypt,  db
 from vending_machine.models import User
@@ -81,3 +81,11 @@ def login():
             return jsonify(message='login successful')
     elif request.method == 'GET':
         return jsonify(message='please make valid post request with username and password')
+
+@users.route('/logout', methods=['GET'])
+def logout():
+    if current_user.is_authenticated:
+        logout_user()
+        return jsonify(message='user logged out successfully')
+    else: 
+        return jsonify(message='user not logged in')

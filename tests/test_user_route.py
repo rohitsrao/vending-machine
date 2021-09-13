@@ -113,7 +113,7 @@ class TestRegisterRoute(unittest.TestCase):
         with self.app.app_context():
             user = User.query.filter_by(username=self.post_data_seller['username']).first()
             self.assertTrue(bcrypt.check_password_hash(user.password, self.post_data_seller['password']))
-
+    
     def test_successful_login_returns_success_message(self):
         register_data = {
             'username': 'candaceowens767',
@@ -128,7 +128,7 @@ class TestRegisterRoute(unittest.TestCase):
         response = self.client.post('/user/login', json=login_data)
         self.assertEqual(response.get_json()['message'],
                          'login successful')
-
+    
     def test_wrong_username_failed_login_returns_failure_message(self):
         register_data = {
             'username': 'phineas458',
@@ -143,7 +143,7 @@ class TestRegisterRoute(unittest.TestCase):
         response = self.client.post('/user/login', json=login_data)
         self.assertEqual(response.get_json()['message'],
                          'login attempt failed due to incorrect username')
-
+    
     def test_wrong_password_failed_login_returns_failure_message(self):
         register_data = {
             'username': 'phineas458',
@@ -158,26 +158,26 @@ class TestRegisterRoute(unittest.TestCase):
         response = self.client.post('/user/login', json=login_data)
         self.assertEqual(response.get_json()['message'],
                          'login attempt failed due to incorrect password')
-
+    
     def test_get_request_to_register_when_logged_in_returns_message(self):
         _ = self.client.post('/user/register', json=self.post_data_buyer)
         _ = self.client.post('/user/login', json=self.post_data_buyer_login)
         response = self.client.get('/user/register')
         self.assertEqual(response.get_json()['message'],
                          'user already logged in')
-
+    
     def test_post_request_to_register_when_logged_in_returns_message(self):
         _ = self.client.post('/user/register', json=self.post_data_buyer)
         _ = self.client.post('/user/login', json=self.post_data_buyer_login)
         response = self.client.post('/user/register', json=self.post_data_buyer)
         self.assertEqual(response.get_json()['message'],
                          'user already logged in')
-
+    
     def test_get_request_to_login_returns_instructions(self):
         response = self.client.get('/user/login')
         self.assertEqual(response.get_json()['message'], 
                          'please make valid post request with username and password')
-
+    
     def test_get_request_to_login_when_logged_in_returns_message(self):
         _ = self.client.post('/user/register', json=self.post_data_buyer)
         _ = self.client.post('/user/login', json=self.post_data_buyer_login)
@@ -191,4 +191,15 @@ class TestRegisterRoute(unittest.TestCase):
         response = self.client.post('/user/login', json=self.post_data_buyer_login)
         self.assertEqual(response.get_json()['message'],
                          'user already logged in')
+    
+    def test_get_request_to_logout_without_logging_in_returns_message(self):
+        response = self.client.get('/user/logout')
+        self.assertEqual(response.get_json()['message'], 'user not logged in')
+    
+    def test_get_request_to_logout_after_being_logged_in_returns_success_message(self):
+        _ = self.client.post('/user/register', json=self.post_data_seller)
+        _ = self.client.post('/user/login', json=self.post_data_seller_login)
+        response = self.client.get('/user/logout')
+        self.assertEqual(response.get_json()['message'],
+                         'user logged out successfully')
 
