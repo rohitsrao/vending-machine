@@ -168,6 +168,36 @@ class TestRequestsIfLoggedIn(unittest.TestCase):
         response = self.client.put('/product/1/update', json=updated_product_data)
         self.assertEqual(response.get_json()['message'],
                          'user must be a seller to update product')
+    
+    def test_delete_product_request_without_logging_in_returns_error_message(self):
+        _ = self.client.post('/user/register', json=self.post_data_seller)
+        _ = self.client.post('/user/login', json=self.post_data_seller_login)
+        product_data = {
+            'productName': 'Coca Cola 0.3L',
+            'amountAvailable': 10,
+            'cost': 100
+        }
+        _ = self.client.post('/product/add', json=product_data)
+        _ = self.client.get('/user/logout')
+        response = self.client.delete('/product/1/delete')
+        self.assertEqual(response.get_json()['message'],
+                         'user must be logged in to delete product')
+    
+    def test_delete_request_as_buyer_returns_error_message(self):
+        _ = self.client.post('/user/register', json=self.post_data_seller)
+        _ = self.client.post('/user/login', json=self.post_data_seller_login)
+        product_data = {
+            'productName': 'Coca Cola 0.3L',
+            'amountAvailable': 10,
+            'cost': 100
+        }
+        _ = self.client.post('/product/add', json=product_data)
+        _ = self.client.get('/user/logout')
+        _ = self.client.post('/user/register', json=self.post_data_buyer)
+        _ = self.client.post('/user/login', json=self.post_data_buyer_login)
+        response = self.client.delete('/product/1/delete')
+        self.assertEqual(response.get_json()['message'],
+                         'user must be a seller to delete product')
 
 if __name__ == '__main__':
     unittest.main()
