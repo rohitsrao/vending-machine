@@ -199,5 +199,31 @@ class TestRequestsIfLoggedIn(unittest.TestCase):
         self.assertEqual(response.get_json()['message'],
                          'user must be a seller to delete product')
 
+    def test_deposit_without_logging_in_returns_error_message(self):
+        deposit_data = {
+            '5': 1,
+            '10': 1,
+            '20': 2,
+            '50': 1,
+            '100': 0
+        }
+        response = self.client.post('/user/deposit', json=deposit_data)
+        self.assertEqual(response.get_json()['message'],
+                         'user must be logged in to deposit')
+
+    def test_deposit_while_logged_in_as_seller_returns_error_message(self):
+        deposit_data = {
+            '5': 1,
+            '10': 1,
+            '20': 2,
+            '50': 1,
+            '100': 0
+        }
+        _ = self.client.post('/user/register', json=self.post_data_seller)
+        _ = self.client.post('/user/login', json=self.post_data_seller_login)
+        response = self.client.post('/user/deposit', json=deposit_data)
+        self.assertEqual(response.get_json()['message'],
+                         'user must be a seller to deposit')
+
 if __name__ == '__main__':
     unittest.main()

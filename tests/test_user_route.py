@@ -370,5 +370,51 @@ class TestAccount(unittest.TestCase):
             deleted_user = User.query.filter_by(username=self.post_data_buyer['username']).first()
             self.assertIsNone(deleted_user)
 
+class TestDeposit(unittest.TestCase):
+    
+    def setUp(self):
+        self.app = create_app(TestConfig)
+        
+        self.db = init_db(self.app)
+        with self.app.app_context():
+            self.db.create_all()
+        
+        self.client = self.app.test_client()
+        self.get_response = self.client.get('/user/register')
+        
+        self.post_data_buyer = {
+            'username': 'hummuslover',
+            'password': 'pw123',
+            'role': 'buyer'
+        }
+       
+        self.post_data_buyer_login = {
+            'username': 'hummuslover',
+            'password': 'pw123',
+        }
+        
+        _ = self.client.post('/user/register', json=self.post_data_buyer)
+        _ = self.client.post('/user/login', json=self.post_data_buyer_login)
+    
+    def tearDown(self):
+        with self.app.app_context():
+            self.db.session.remove()
+            self.db.drop_all()
+    
+    def test_buyer_deposits_coins(self):
+        deposit_data = {
+            '5': 1,
+            '10': 1,
+            '20': 2,
+            '50': 1,
+            '100': 0
+        }
+        response = self.client.post('/user/deposit', json=deposit_data)
+        self.assertEqual(response.get_json()['message'], 
+                         'deposit successful')
+        with self.app.app_context():
+            user = User.query.filter_by(username=self.post_data_buyer['username']).first()
+        self.assertEqual(user.deposit, 105)
+
 if __name__ == '__main__':
     unittest.main()

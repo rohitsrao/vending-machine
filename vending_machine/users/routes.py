@@ -25,7 +25,6 @@ def extract_json_request(req):
         role = req['role']
         return (username, password, role)
 
-
 @users.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
@@ -146,3 +145,24 @@ def logout():
         return jsonify(message='user logged out successfully')
     else: 
         return jsonify(message='user not logged in')
+
+def compute_total_deposit(req):
+    total = 0
+    for coin in req:
+        total += int(coin) * req[coin]
+    return total
+
+@users.route('/deposit', methods=['POST'])
+def deposit_coins():
+    if current_user.is_authenticated:
+        if current_user.role != 'buyer':
+            return jsonify(message='user must be a seller to deposit')
+        else:
+            req = request.get_json()
+            total_deposit = compute_total_deposit(req)
+            with current_app.app_context():
+                user = User.query.get(current_user.id)
+                user.deposit = total_deposit
+                db.session.commit()
+            return jsonify(message='deposit successful')
+    else: return jsonify(message='user must be logged in to deposit')
