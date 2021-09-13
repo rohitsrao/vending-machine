@@ -27,8 +27,7 @@ def add_product():
             db.session.add(product)
             db.session.commit()
         return jsonify(message='product added')
-    else:
-        return jsonify(message='user must be logged in to add a new product')
+    else: return jsonify(message='user must be logged in to add a new product')
 
 @product.route('/<int:product_id>', methods=['GET'])
 def product_details(product_id):
@@ -41,8 +40,7 @@ def product_details(product_id):
             'sellerId': product.sellerId
         }
         return jsonify(response_json)
-    else:
-        return jsonify(message='invalid product id. Please check and try again.')
+    else: return jsonify(message='invalid product id. Please check and try again.')
 
 @product.route('/<int:product_id>/update', methods=['PUT'])
 def update_product_details(product_id):
@@ -59,8 +57,7 @@ def update_product_details(product_id):
             product.cost = req['cost']
             db.session.commit()
         return jsonify(message='product details updated')
-    else:
-        return jsonify(message='user must be logged in to update product')
+    else: return jsonify(message='user must be logged in to update product')
 
 @product.route('/<int:product_id>/delete', methods=['DELETE'])
 def delete_product(product_id):
@@ -74,5 +71,14 @@ def delete_product(product_id):
             db.session.delete(product)
             db.session.commit()
         return jsonify(message='product deleted')
+    else: return jsonify(message='user must be logged in to delete product')
+
+@product.route('/buy', methods=['POST'])
+def buy_product():
+    if current_user.is_authenticated:
+        if current_user.role != 'buyer':
+            return jsonify(message='user must be a buyer to buy')
+        else:
+            pass
     else:
-        return jsonify(message='user must be logged in to delete product')
+        return jsonify(message='user must be logged in to buy')
