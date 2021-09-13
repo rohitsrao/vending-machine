@@ -20,7 +20,7 @@ class TestRegister(unittest.TestCase):
         self.post_data_buyer = {
             'username': 'hummuslover',
             'password': 'pw123',
-            'seller': False
+            'role': 'buyer'
         }
      
         self.post_data_buyer_login = {
@@ -31,7 +31,7 @@ class TestRegister(unittest.TestCase):
         self.post_data_seller = {
             'username': 'pikachu',
             'password': 'password',
-            'seller': True
+            'role': 'seller'
         }
         
         self.post_data_seller_login = {
@@ -99,16 +99,15 @@ class TestRegister(unittest.TestCase):
         self.assertEqual(response.get_json()['message'],
                     'password not provided')
     
-    def test_register_post_request_without_role_key_in_json_request(self):
+    def test_register_post_request_without_role_key_in_json_request_returns_error_message(self):
         post_data = {
             'username': 'HaNuMaN',
             'password': 'jaishriram'
         }
-        _ = self.client.post('/user/register', json=post_data)
-        with self.app.app_context():
-            test_user = User.query.filter_by(username=post_data['username']).first()
-            self.assertEqual(test_user.role, 'buyer')
-    
+        response = self.client.post('/user/register', json=post_data)
+        self.assertEqual(response.get_json()['message'],
+                         'role not provided')
+
     def test_register_hashes_password_before_storing(self):
         _ = self.client.post('/user/register', json=self.post_data_seller)
         with self.app.app_context():
@@ -140,7 +139,7 @@ class TestLogin(unittest.TestCase):
         register_data = {
             'username': 'candaceowens767',
             'password': 'Doofenshmirtz',
-            'seller': True
+            'role': 'seller'
         }
         login_data = {
             'username': 'candaceowens767',
@@ -155,7 +154,7 @@ class TestLogin(unittest.TestCase):
         register_data = {
             'username': 'phineas458',
             'password': 'pkdudeisawesome',
-            'seller': False
+            'role': 'buyer'
         }
         login_data = {
             'username': 'doofenshmritzEvilInc',
@@ -170,7 +169,7 @@ class TestLogin(unittest.TestCase):
         register_data = {
             'username': 'phineas458',
             'password': 'pkdudeisawesome',
-            'seller': True
+            'role': 'seller'
         }
         login_data = {
             'username': 'phineas458',
@@ -195,7 +194,7 @@ class TestLogout(unittest.TestCase):
         self.post_data_seller = {
             'username': 'pikachu',
             'password': 'password',
-            'seller': True
+            'role': 'seller'
         }
         
         self.post_data_seller_login = {
@@ -234,7 +233,7 @@ class TestAccount(unittest.TestCase):
         self.post_data_buyer = {
             'username': 'hummuslover',
             'password': 'pw123',
-            'seller': False
+            'role': 'buyer'
         }
      
         self.post_data_buyer_login = {
@@ -245,7 +244,7 @@ class TestAccount(unittest.TestCase):
         self.post_data_seller = {
             'username': 'pikachu',
             'password': 'password',
-            'seller': True
+            'role': 'seller'
         }
         
         self.post_data_seller_login = {

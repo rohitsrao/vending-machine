@@ -9,24 +9,48 @@ from vending_machine.models import User
 
 users = Blueprint('users', __name__)
 
-def username_exists(username):
-    existing_user = User.query.filter_by(username=username).first()
-    if existing_user:
-        return True
-    else:
-        return False
+def add_new_user_to_db(username, password, role):
+    hashed_pw = bcrypt.generate_password_hash(password).decode('utf-8')
+    new_user = User(username=username, password=hashed_pw, role=role)
+    del hashed_pw
+    gc.collect()
+    with current_app.app_context():
+        db.session.add(new_user)
+        db.session.commit()
 
-def username_missing(req):
-    if 'username' not in req:
-        return True
-    else:
-        return False
+def extract_json_request(req):
+        username = req['username']
+        password = req['password']
+        role = req['role']
+        return (username, password, role)
 
 def password_missing(req):
-    if 'password' not in req:
-        return True
-    else:
-        return False
+    if 'password' not in req: return True
+    else: return False
+
+def role_missing(req):
+    if 'role' not in req: return True
+    else: return False
+
+def username_exists(username):
+    existing_user = User.query.filter_by(username=username).first()
+    if existing_user: return True
+    else: return False
+
+def username_missing(req):
+    if 'username' not in req: return True
+    else: return False
+
+def validate_register_json_request(req):
+    if username_missing(req): return (True, 'username not provided')
+    if password_missing(req): return (True, 'password not provided')
+    if role_missing(req): return (True, 'role not provided')
+    return (False, '')
+
+def validate_username(username):
+    if username_exists(username):
+        return (True, 'username already exists. Please register with a different one')
+    return (False, '')
 
 @users.route('/register', methods=['GET', 'POST'])
 def register():
@@ -34,27 +58,15 @@ def register():
         return jsonify(message='user already logged in')
     if request.method == 'POST':
         req = request.get_json()
-        if username_missing(req):
-            return jsonify(message='username not provided')
-        if password_missing(req):
-            return jsonify(message='password not provided')
-        username = req['username']
-        password = req['password']
-        if username_exists(username):
-            return jsonify(message='username already exists. Please register with a different one')
-        if 'seller' in req and req['seller'] == True:
-            hashed_pw = bcrypt.generate_password_hash(password).decode('utf-8')
-            new_user = User(username=username, password=hashed_pw, role='seller')
-            del hashed_pw
-            gc.collect()
+        register_json_is_invalid, error_message = validate_register_json_request(req)
+        if register_json_is_invalid: return jsonify(message=error_message)
+        username, password, role = extract_json_request(req)
+        username_is_invalid, error_message = validate_username(username)
+        if username_is_invalid: return jsonify(message=error_message)
+        if role == 'seller':
+            add_new_user_to_db(username, password, 'seller')
         else:
-            hashed_pw = bcrypt.generate_password_hash(password).decode('utf-8')
-            new_user = User(username=username, password=hashed_pw)
-            del hashed_pw
-            gc.collect()
-        with current_app.app_context():
-            db.session.add(new_user)
-            db.session.commit()
+            add_new_user_to_db(username, password, 'buyer')
         return jsonify(message = 'registered successfully')
     elif request.method == 'GET':
         return jsonify(

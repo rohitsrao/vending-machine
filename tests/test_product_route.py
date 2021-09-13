@@ -18,7 +18,7 @@ class TestProductRoute(unittest.TestCase):
         self.post_data_seller = {
             'username': 'pikachu',
             'password': 'password',
-            'seller': True
+            'role': 'seller'
         }
         
         self.post_data_seller_login = {
@@ -99,7 +99,7 @@ class TestProductRoute(unittest.TestCase):
         seller1_data = {
             'username': 'seller1',
             'password': 'pw1',
-            'seller': True
+            'role': 'seller'
         }
         seller1_login_data = {
             'username': 'seller1',
@@ -108,7 +108,7 @@ class TestProductRoute(unittest.TestCase):
         seller2_data = {
             'username': 'seller2',
             'password': 'pw2',
-            'seller': True
+            'role': 'seller'
         }
         seller2_login_data = {
             'username': 'seller2',
@@ -138,7 +138,7 @@ class TestProductRoute(unittest.TestCase):
         seller1_data = {
             'username': 'seller1',
             'password': 'pw1',
-            'seller': True
+            'role': 'seller'
         }
         seller1_login_data = {
             'username': 'seller1',
@@ -147,7 +147,7 @@ class TestProductRoute(unittest.TestCase):
         seller2_data = {
             'username': 'seller2',
             'password': 'pw2',
-            'seller': True
+            'role': 'seller'
         }
         seller2_login_data = {
             'username': 'seller2',
@@ -167,7 +167,7 @@ class TestProductRoute(unittest.TestCase):
         response = self.client.delete('/product/1/delete')
         self.assertEqual(response.get_json()['message'],
                          'seller id of current user does not match seller id of product')
-
+    
     def test_delete_request_from_valid_seller(self):
         _ = self.client.post('/product/add', json=self.product_data)
         response = self.client.delete('/product/1/delete')

@@ -17,7 +17,7 @@ class TestRequestsIfLoggedIn(unittest.TestCase):
         self.post_data_buyer = {
             'username': 'hummuslover',
             'password': 'pw123',
-            'seller': False
+            'role': 'buyer'
         }
         
         self.post_data_buyer_login = {
@@ -28,7 +28,7 @@ class TestRequestsIfLoggedIn(unittest.TestCase):
         self.post_data_seller = {
             'username': 'pikachu',
             'password': 'password',
-            'seller': True
+            'role': 'seller'
         }
         
         self.post_data_seller_login = {
