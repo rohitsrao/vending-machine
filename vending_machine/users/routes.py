@@ -87,6 +87,33 @@ def update_username():
     else:
         return jsonify(message='user must be logged in to update username')
 
+@users.route('/account/update_password', methods=['PATCH'])
+def update_password():
+    if current_user.is_authenticated:
+        req = request.get_json()
+        new_password = req['password']
+        hashed_pw = bcrypt.generate_password_hash(new_password).decode('utf-8')
+        user = User.query.filter_by(username=current_user.username).first()
+        user.password = hashed_pw
+        db.session.commit()
+        del hashed_pw
+        gc.collect()
+        return jsonify(message='password updated')
+    else: 
+        return jsonify(message='user must be logged in to update password')
+
+@users.route('/account/update_role', methods=['PATCH'])
+def update_role():
+    if current_user.is_authenticated:
+        req = request.get_json()
+        new_role = req['role']
+        user = User.query.filter_by(username=current_user.username).first()
+        user.role = new_role
+        db.session.commit()
+        return jsonify(message='role updated')
+    else:
+        return jsonify(message='user must be logged in to update role')
+
 @users.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:

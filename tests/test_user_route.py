@@ -302,6 +302,30 @@ class TestAccount(unittest.TestCase):
         response = self.client.patch('/user/account/update_username', json=patch_data)
         self.assertEqual(response.get_json()['message'],
                          'new username already exists. Please choose a different one.')
+    
+    def test_patch_request_to_update_password(self):
+        _ = self.client.post('/user/register', json=self.post_data_seller)
+        _ = self.client.post('/user/login', json=self.post_data_seller_login)
+        patch_data = {
+            'password': 'ThisIsTheNewPassword456'
+        }
+        with self.app.app_context():
+            response = self.client.patch('/user/account/update_password', json=patch_data)
+            updated_user = User.query.filter_by(username=self.post_data_seller['username']).first()
+            self.assertTrue(bcrypt.check_password_hash(updated_user.password, patch_data['password']))
+            self.assertEqual(response.get_json()['message'], 'password updated')
+
+    def test_patch_request_to_update_role(self):
+        _ = self.client.post('/user/register', json=self.post_data_buyer)
+        _ = self.client.post('/user/login', json=self.post_data_buyer_login)
+        patch_data = {
+            'role': 'seller'
+        }
+        with self.app.app_context():
+            response = self.client.patch('/user/account/update_role', json=patch_data)
+            updated_user = User.query.filter_by(username=self.post_data_buyer['username']).first()
+            self.assertEqual(updated_user.role, patch_data['role'])
+            self.assertEqual(response.get_json()['message'], 'role updated')
 
 class TestRequestsIfLoggedIn(unittest.TestCase):
     
@@ -375,13 +399,29 @@ class TestRequestsIfLoggedIn(unittest.TestCase):
         self.assertEqual(response.get_json()['message'],
                          'user must be logged in to access this page')
 
-    def test_patch_request_to_updated_username_without_logging_in_returns_failure_message(self):
+    def test_patch_request_to_update_username_without_logging_in_returns_failure_message(self):
         patch_data = {
             'username': 'theStig'
         }
         response = self.client.patch('/user/account/update_username', json=patch_data)
         self.assertEqual(response.get_json()['message'],
                          'user must be logged in to update username')
+
+    def test_patch_request_to_update_username_without_logging_in_returns_failure_message(self):
+        patch_data = {
+            'password': 'ThisIsTheNewPassword456'
+        }
+        response = self.client.patch('/user/account/update_password', json=patch_data)
+        self.assertEqual(response.get_json()['message'],
+                         'user must be logged in to update password')
+
+    def test_patch_request_to_update_role_without_logging_in_returns_failure_message(self):
+        patch_data = {
+            'role': 'seller'
+        }
+        response = self.client.patch('/user/account/update_role', json=patch_data)
+        self.assertEqual(response.get_json()['message'],
+                         'user must be logged in to update role')
 
 if __name__ == '__main__':
     unittest.main()

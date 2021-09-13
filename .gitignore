@@ -1,4 +1,4 @@
-test.db
+tests/test.db
 *.pyc
 
 env/
