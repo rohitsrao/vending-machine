@@ -33,10 +33,24 @@ def add_product():
 @product.route('/<int:product_id>', methods=['GET'])
 def product_details(product_id):
     product = Product.query.get(product_id)
-    response_json = {
-        'productName' : product.productName,
-        'amountAvailable': product.amountAvailable,
-        'cost': product.cost,
-        'sellerId': product.sellerId
-    }
-    return jsonify(response_json)
+    if product:
+        response_json = {
+            'productName' : product.productName,
+            'amountAvailable': product.amountAvailable,
+            'cost': product.cost,
+            'sellerId': product.sellerId
+        }
+        return jsonify(response_json)
+    else:
+        return jsonify(message='invalid product id. Please check and try again.')
+
+@product.route('/<int:product_id>/update', methods=['PUT'])
+def update_product_details(product_id):
+    req = request.get_json()
+    product = Product.query.get(product_id)
+    with current_app.app_context():
+        product.productName = req['productName']
+        product.amountAvailable = req['amountAvailable']
+        product.cost = req['cost']
+        db.session.commit()
+    return jsonify(message='product details updated')
