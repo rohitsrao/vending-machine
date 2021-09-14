@@ -219,8 +219,8 @@ class TestProductPurchase(unittest.TestCase):
         with self.app.app_context():
             self.db.session.remove()
             self.db.drop_all()
-
-    def test_product_purchase_returns_change(self):
+    
+    def test_product_purchase_single_quantity_returns_corrct_change(self):
         _ = self.client.post('/product/add', json=self.product1_data)
         _ = self.client.get('/user/logout')
         _ = self.client.post('/user/register', json=self.post_data_buyer)
@@ -250,6 +250,71 @@ class TestProductPurchase(unittest.TestCase):
             }
         }
         self.assertEqual(response.get_json(), expected_response)
+    
+    def test_product_purchase_multiple_quantity_computes_correct_cost(self):
+        _ = self.client.post('/product/add', json=self.product1_data)
+        _ = self.client.get('/user/logout')
+        _ = self.client.post('/user/register', json=self.post_data_buyer)
+        _ = self.client.post('/user/login', json=self.post_data_buyer_login)
+        deposit_data = {
+            'c5': 0,
+            'c10': 0,
+            'c20': 5,
+            'c50': 2,
+            'c100': 1
+        }
+        _ = self.client.post('/user/deposit', json=deposit_data)
+        buy_data = {
+            'productId': 1,
+            'amountToBuy': 4,
+        }
+        response = self.client.post('/product/buy', json=buy_data)
+        expected_response = {
+            'productPurchased': self.product1_data['productName'],
+            'amountSpent': 300,
+            'change': {
+                'c5': 0,
+                'c10': 0,
+                'c20': 0,
+                'c50': 0,
+                'c100': 0
+            }
+        }
+        self.assertEqual(response.get_json(), expected_response)
+    
+    def test_product_purchase_multiple_quantity_reduces_quantity_in_db(self):
+        _ = self.client.post('/product/add', json=self.product1_data)
+        _ = self.client.get('/user/logout')
+        _ = self.client.post('/user/register', json=self.post_data_buyer)
+        _ = self.client.post('/user/login', json=self.post_data_buyer_login)
+        deposit_data = {
+            'c5': 0,
+            'c10': 0,
+            'c20': 5,
+            'c50': 2,
+            'c100': 1
+        }
+        _ = self.client.post('/user/deposit', json=deposit_data)
+        buy_data = {
+            'productId': 1,
+            'amountToBuy': 4,
+        }
+        response = self.client.post('/product/buy', json=buy_data)
+        expected_response = {
+            'productPurchased': self.product1_data['productName'],
+            'amountSpent': 300,
+            'change': {
+                'c5': 0,
+                'c10': 0,
+                'c20': 0,
+                'c50': 0,
+                'c100': 0
+            }
+        }
+        self.assertEqual(response.get_json(), expected_response)
+        with self.app.app_context():
+            product = Product.query.get(1)
+            self.assertEqual(product.amountAvailable, self.product1_data['amountAvailable'] - buy_data['amountToBuy'])
 
 if __name__ == '__main__':
     unittest.main()

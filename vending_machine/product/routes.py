@@ -1,6 +1,7 @@
 from flask import current_app, jsonify, request
 from flask import Blueprint
 from flask_login import current_user
+from sqlalchemy.orm import sessionmaker
 
 from vending_machine import db
 from vending_machine.models import Coinstack, Product, User
@@ -87,13 +88,15 @@ def buy_product():
                 user = User.query.get(current_user.id)
                 product = Product.query.get(productId)
                 coinstack = Coinstack.query.get(1)
-                change_amount = user.deposit - product.cost
-                print(change_amount)
+                product.amountAvailable -= amountToBuy
+                total_cost = product.cost * amountToBuy
+                change_amount = user.deposit - total_cost
                 num_coins_available = format_num_coins_available(coinstack)
                 change_coins = coin_change_calculator(change_amount, num_coins_available)
+                db.session.commit()
             return jsonify({
                 'productPurchased': product.productName,
-                'amountSpent': product.cost,
+                'amountSpent': total_cost,
                 'change': change_coins
             })
     else:

@@ -4,6 +4,11 @@ from vending_machine.product.routes import coin_change_calculator
 
 class TestCoinChangeCalculator(unittest.TestCase):
 
+    def test_0_returned_as_all_zeros(self):
+        num_coins_available = {'c5': 5, 'c10': 6, 'c20': 6, 'c50': 2, 'c100': 1} 
+        expected_change = {'c5': 0, 'c10': 0, 'c20': 0, 'c50': 0, 'c100': 0} 
+        self.assertEqual(coin_change_calculator(0, num_coins_available), expected_change)
+
     def test_returns_75_as_1x50_1x20_1x5_given_40coins_in_each(self):
         num_coins_available = {'c5': 40, 'c10': 40, 'c20': 40, 'c50': 40, 'c100': 40} 
         expected_change = {'c5': 1, 'c10': 0, 'c20': 1, 'c50': 0, 'c100': 0} 

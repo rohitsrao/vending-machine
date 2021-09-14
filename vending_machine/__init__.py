@@ -2,10 +2,12 @@ from flask import Flask
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 from vending_machine.config import Config
 
 bcrypt = Bcrypt()
-db = SQLAlchemy()
+db = SQLAlchemy(session_options={'expire_on_commit':False})
 login_manager = LoginManager()
 
 from vending_machine.models import Coinstack
@@ -25,6 +27,8 @@ def create_app(config_class = Config):
     with app.app_context():
         bcrypt.init_app(app)
         db.init_app(app)
+        #db.engine = create_engine(config_class.SQLALCHEMY_DATABASE_URI)
+        #db.session = sessionmaker(engine, expire_on_commit=False)
         db.create_all()
         login_manager.init_app(app)
     
