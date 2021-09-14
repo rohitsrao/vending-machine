@@ -25,7 +25,6 @@ def create_app(config_class = Config):
     with app.app_context():
         bcrypt.init_app(app)
         db.init_app(app)
-        #db = init_db(app)
         db.create_all()
         login_manager.init_app(app)
     
@@ -37,8 +36,3 @@ def create_app(config_class = Config):
             db.session.commit()
     
     return app
-
-#def init_db(app):
-#    with app.app_context():
-#        db.init_app(app)
-#        return db
