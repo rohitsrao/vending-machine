@@ -2,7 +2,7 @@ import unittest
 
 from test_config import TestConfig
 from vending_machine import create_app, db
-from vending_machine.models import Product, User
+from vending_machine.models import Coinstack, Product, User
 
 class TestProductRoute(unittest.TestCase):
     
@@ -315,6 +315,94 @@ class TestProductPurchase(unittest.TestCase):
         with self.app.app_context():
             product = Product.query.get(1)
             self.assertEqual(product.amountAvailable, self.product1_data['amountAvailable'] - buy_data['amountToBuy'])
+    
+    def test_product_purchase_with_invalid_product_id_produces_error_message(self):
+        _ = self.client.post('/product/add', json=self.product1_data)
+        _ = self.client.get('/user/logout')
+        _ = self.client.post('/user/register', json=self.post_data_buyer)
+        _ = self.client.post('/user/login', json=self.post_data_buyer_login)
+        deposit_data = {
+            'c5': 0,
+            'c10': 0,
+            'c20': 5,
+            'c50': 2,
+            'c100': 1
+        }
+        _ = self.client.post('/user/deposit', json=deposit_data)
+        buy_data = {
+            'productId': 5,
+            'amountToBuy': 4,
+        }
+        response = self.client.post('/product/buy', json=buy_data)
+        self.assertEqual(response.get_json()['message'],
+                         'product id is invalid')
+    
+    def test_product_purchase_with_insifficient_product_quantity_available_returns_error_message(self):
+        _ = self.client.post('/product/add', json=self.product1_data)
+        _ = self.client.get('/user/logout')
+        _ = self.client.post('/user/register', json=self.post_data_buyer)
+        _ = self.client.post('/user/login', json=self.post_data_buyer_login)
+        deposit_data = {
+            'c5': 0,
+            'c10': 0,
+            'c20': 5,
+            'c50': 2,
+            'c100': 1
+        }
+        _ = self.client.post('/user/deposit', json=deposit_data)
+        buy_data = {
+            'productId': 1,
+            'amountToBuy': 12,
+        }
+        response = self.client.post('/product/buy', json=buy_data)
+        self.assertEqual(response.get_json()['message'],
+                         'quantity requested to buy more than amount available')
+    
+    def test_product_purchase_with_insufficient_deposit_returns_error_message(self):
+        _ = self.client.post('/product/add', json=self.product1_data)
+        _ = self.client.get('/user/logout')
+        _ = self.client.post('/user/register', json=self.post_data_buyer)
+        _ = self.client.post('/user/login', json=self.post_data_buyer_login)
+        deposit_data = {
+            'c5': 0,
+            'c10': 0,
+            'c20': 3,
+            'c50': 0,
+            'c100': 0
+        }
+        _ = self.client.post('/user/deposit', json=deposit_data)
+        buy_data = {
+            'productId': 1,
+            'amountToBuy': 1,
+        }
+        response = self.client.post('/product/buy', json=buy_data)
+        self.assertEqual(response.get_json()['message'],
+                         'insufficient or no deposit. Please deposit sufficient money and try again')
+    
+    def test_product_purchase_when_insufficient_change_in_vending_machine(self):
+        with self.app.app_context():
+            coinstack = Coinstack.query.get(1)
+            coinstack.c5 = 0
+            db.session.commit()
+        _ = self.client.post('/product/add', json=self.product1_data)
+        _ = self.client.get('/user/logout')
+        _ = self.client.post('/user/register', json=self.post_data_buyer)
+        _ = self.client.post('/user/login', json=self.post_data_buyer_login)
+        deposit_data = {
+            'c5': 0,
+            'c10': 0,
+            'c20': 8,
+            'c50': 0,
+            'c100': 0
+        }
+        _ = self.client.post('/user/deposit', json=deposit_data)
+        buy_data = {
+            'productId': 1,
+            'amountToBuy': 1,
+        }
+        response = self.client.post('/product/buy', json=buy_data)
+        self.assertEqual(response.get_json()['message'],
+                         'vending machine has insufficient change. Please contact customer service')
 
 if __name__ == '__main__':
     unittest.main()

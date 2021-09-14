@@ -27,8 +27,6 @@ def create_app(config_class = Config):
     with app.app_context():
         bcrypt.init_app(app)
         db.init_app(app)
-        #db.engine = create_engine(config_class.SQLALCHEMY_DATABASE_URI)
-        #db.session = sessionmaker(engine, expire_on_commit=False)
         db.create_all()
         login_manager.init_app(app)
     

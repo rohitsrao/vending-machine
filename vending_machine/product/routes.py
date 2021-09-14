@@ -87,12 +87,20 @@ def buy_product():
             with current_app.app_context():
                 user = User.query.get(current_user.id)
                 product = Product.query.get(productId)
+                if product is None: return jsonify(message='product id is invalid')
+                if amountToBuy > product.amountAvailable: 
+                    return jsonify(message='quantity requested to buy more than amount available')
                 coinstack = Coinstack.query.get(1)
                 product.amountAvailable -= amountToBuy
                 total_cost = product.cost * amountToBuy
+                if user.deposit < total_cost: 
+                    return jsonify(message='insufficient or no deposit. Please deposit sufficient money and try again')
                 change_amount = user.deposit - total_cost
                 num_coins_available = format_num_coins_available(coinstack)
                 change_coins = coin_change_calculator(change_amount, num_coins_available)
+                if change_coins is None:
+                    return jsonify(message='vending machine has insufficient change. Please contact customer service')
+                reduce_change_from_coinstack(coinstack, change_coins)
                 db.session.commit()
             return jsonify({
                 'productPurchased': product.productName,

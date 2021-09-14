@@ -4,7 +4,7 @@ import unittest
 from sqlalchemy.exc import IntegrityError
 from test_config import TestConfig
 from vending_machine import bcrypt, create_app, db
-from vending_machine.models import User
+from vending_machine.models import Coinstack, User
 
 class TestRegister(unittest.TestCase):
     
@@ -404,7 +404,7 @@ class TestDeposit(unittest.TestCase):
         with self.app.app_context():
             user = User.query.filter_by(username=self.post_data_buyer['username']).first()
         self.assertEqual(user.deposit, 105)
-    
+
     def test_reset_deposit_given_valid_buyer_login(self):
         deposit_data = {
             'c5': 5,

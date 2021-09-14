@@ -40,7 +40,7 @@ def compute_total_deposit(req):
         total += int(coin[1:]) * req[coin]
     return total
 
-def extract_coin_data(req):
+def extract_coin_data_from_json(req):
     c5 = req['c5']
     c10 = req['c10']
     c20 = req['c20']
@@ -63,6 +63,13 @@ def format_num_coins_available(coinstack):
         'c100': coinstack.c100
     }
     return num_coins_available
+
+def reduce_change_from_coinstack(coinstack, change_coins):
+    coinstack.c5 -= change_coins['c5']*5
+    coinstack.c10 -= change_coins['c10']*10
+    coinstack.c20 -= change_coins['c20']*20
+    coinstack.c50 -= change_coins['c50']*50
+    coinstack.c100 -= change_coins['c100']*100
 
 def update_coinstack(coinstack, c5, c10, c20, c50, c100):
     coinstack.c5 += c5

@@ -139,12 +139,11 @@ def deposit_coins():
             return jsonify(message='user must be a seller to deposit')
         else:
             req = request.get_json()
-            c5, c10, c20, c50, c100 = extract_coin_data(req)
+            c5, c10, c20, c50, c100 = extract_coin_data_from_json(req)
             total_deposit = compute_total_deposit(req)
             with current_app.app_context():
                 coinstack = Coinstack.query.get(1)
                 update_coinstack(coinstack, c5, c10, c20, c50, c100)
-                db.session.commit()
                 user = User.query.get(current_user.id)
                 user.deposit = total_deposit
                 db.session.commit()
@@ -159,7 +158,15 @@ def reset_deposit():
         else:
             with current_app.app_context():
                 user = User.query.get(current_user.id)
-                user.deposit = 0.0
+                change_amount = user.deposit
+                coinstack = Coinstack.query.get(1)
+                num_coins_available = format_num_coins_available(coinstack)
+                change_coins = coin_change_calculator(change_amount, num_coins_available)
+                reduce_change_from_coinstack(coinstack, change_coins)
+                user.deposit = 0
                 db.session.commit()
-            return jsonify(message='deposit reset')
+            return jsonify({
+                'change' : change_coins,
+                'message':'deposit reset'
+            })
     else: return jsonify(message='user must be logged in to reset deposit')
