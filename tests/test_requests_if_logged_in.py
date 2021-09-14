@@ -225,11 +225,11 @@ class TestRequestsIfLoggedIn(unittest.TestCase):
     
     def test_reset_deposit_without_logging_in_returns_error_message(self):
         deposit_data = {
-            '5': 3,
-            '10': 1,
-            '20': 5,
-            '50': 2,
-            '100': 5
+            'c5': 3,
+            'c10': 1,
+            'c20': 5,
+            'c50': 2,
+            'c100': 5
         }
         _ = self.client.post('/user/register', json=self.post_data_buyer)
         _ = self.client.post('/user/login', json=self.post_data_buyer_login)
@@ -241,11 +241,11 @@ class TestRequestsIfLoggedIn(unittest.TestCase):
     
     def test_reset_deposit_while_logged_in_as_seller_returns_error_message(self):
         deposit_data = {
-            '5': 3,
-            '10': 1,
-            '20': 5,
-            '50': 2,
-            '100': 5
+            'c5': 3,
+            'c10': 1,
+            'c20': 5,
+            'c50': 2,
+            'c100': 5
         }
         _ = self.client.post('/user/register', json=self.post_data_buyer)
         _ = self.client.post('/user/login', json=self.post_data_buyer_login)

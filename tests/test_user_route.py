@@ -392,11 +392,11 @@ class TestDeposit(unittest.TestCase):
     
     def test_buyer_deposits_coins(self):
         deposit_data = {
-            '5': 1,
-            '10': 1,
-            '20': 2,
-            '50': 1,
-            '100': 0
+            'c5': 1,
+            'c10': 1,
+            'c20': 2,
+            'c50': 1,
+            'c100': 0
         }
         response = self.client.post('/user/deposit', json=deposit_data)
         self.assertEqual(response.get_json()['message'], 
@@ -407,11 +407,11 @@ class TestDeposit(unittest.TestCase):
     
     def test_rest_deposit_given_valid_buyer_login(self):
         deposit_data = {
-            '5': 5,
-            '10': 4,
-            '20': 3,
-            '50': 2,
-            '100': 1
+            'c5': 5,
+            'c10': 4,
+            'c20': 3,
+            'c50': 2,
+            'c100': 1
         }
         _ = self.client.post('/user/deposit', json=deposit_data)
         response = self.client.get('/user/deposit/reset')
@@ -420,6 +420,7 @@ class TestDeposit(unittest.TestCase):
         with self.app.app_context():
             user = User.query.filter_by(username=self.post_data_buyer['username']).first()
             self.assertEqual(user.deposit, 0.0)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -4,8 +4,8 @@ from flask import current_app, jsonify, request
 from flask import Blueprint
 from flask_login import current_user, login_user, logout_user
 
-from vending_machine import bcrypt,  db
-from vending_machine.models import User
+from vending_machine import bcrypt, db
+from vending_machine.models import Coinstack, User
 from vending_machine.users.validation import *
 from vending_machine.users.helper_functions import *
 
@@ -139,8 +139,12 @@ def deposit_coins():
             return jsonify(message='user must be a seller to deposit')
         else:
             req = request.get_json()
+            c5, c10, c20, c50, c100 = extract_coin_data(req)
             total_deposit = compute_total_deposit(req)
             with current_app.app_context():
+                coinstack = Coinstack.query.get(1)
+                update_coinstack(coinstack, c5, c10, c20, c50, c100)
+                db.session.commit()
                 user = User.query.get(current_user.id)
                 user.deposit = total_deposit
                 db.session.commit()
