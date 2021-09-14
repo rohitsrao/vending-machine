@@ -1,5 +1,5 @@
 class Config:
     
-    SECRET_KEY = '1207c5ed0996f3535a52b1154ce2682d'
+    SECRET_KEY = ''
     SQLALCHEMY_DATABASE_URI = 'sqlite:///site.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
