@@ -3,7 +3,8 @@ from flask import Blueprint
 from flask_login import current_user
 
 from vending_machine import db
-from vending_machine.models import Product, User
+from vending_machine.models import Coinstack, Product, User
+from vending_machine.helper_functions import *
 
 product = Blueprint('product', __name__)
 
@@ -79,6 +80,21 @@ def buy_product():
         if current_user.role != 'buyer':
             return jsonify(message='user must be a buyer to buy')
         else:
-            pass
+            req = request.get_json()
+            productId = req['productId']
+            amountToBuy = req['amountToBuy']
+            with current_app.app_context():
+                user = User.query.get(current_user.id)
+                product = Product.query.get(productId)
+                coinstack = Coinstack.query.get(1)
+                change_amount = user.deposit - product.cost
+                print(change_amount)
+                num_coins_available = format_num_coins_available(coinstack)
+                change_coins = coin_change_calculator(change_amount, num_coins_available)
+            return jsonify({
+                'productPurchased': product.productName,
+                'amountSpent': product.cost,
+                'change': change_coins
+            })
     else:
         return jsonify(message='user must be logged in to buy')

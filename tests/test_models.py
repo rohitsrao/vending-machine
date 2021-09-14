@@ -25,14 +25,14 @@ class TestUserModel(unittest.TestCase):
         test_user = User(username='test_user', password='testpw123', deposit=0, role='buyer')
         self.assertEqual(test_user.__repr__(), "User('test_user', 0, 'buyer')")
     
-    def test_User_created_with_default_float_zero_deposit(self):
+    def test_User_created_with_default_int_zero_deposit(self):
         test_user = User(username='piakchu', password='&%!opkdfUI8', role='buyer')
         with self.app.app_context():
             self.db.session.add(test_user)
             self.db.session.commit()
             user_db = User.query.filter_by(username=test_user.username).first()
-            self.assertEqual(user_db.deposit, 0.0)
-            self.assertIsInstance(user_db.deposit, float)
+            self.assertEqual(user_db.deposit, 0)
+            self.assertIsInstance(user_db.deposit, int)
     
     def test_user_created_with_default_buyer_role(self):
         test_user = User(username='Göthe', password='44444')

@@ -7,7 +7,7 @@ from flask_login import current_user, login_user, logout_user
 from vending_machine import bcrypt, db
 from vending_machine.models import Coinstack, User
 from vending_machine.users.validation import *
-from vending_machine.users.helper_functions import *
+from vending_machine.helper_functions import *
 
 users = Blueprint('users', __name__)
 

@@ -405,7 +405,7 @@ class TestDeposit(unittest.TestCase):
             user = User.query.filter_by(username=self.post_data_buyer['username']).first()
         self.assertEqual(user.deposit, 105)
     
-    def test_rest_deposit_given_valid_buyer_login(self):
+    def test_reset_deposit_given_valid_buyer_login(self):
         deposit_data = {
             'c5': 5,
             'c10': 4,
@@ -419,7 +419,7 @@ class TestDeposit(unittest.TestCase):
                          'deposit reset')
         with self.app.app_context():
             user = User.query.filter_by(username=self.post_data_buyer['username']).first()
-            self.assertEqual(user.deposit, 0.0)
+            self.assertEqual(user.deposit, 0)
 
 
 if __name__ == '__main__':

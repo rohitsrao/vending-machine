@@ -175,5 +175,81 @@ class TestProductRoute(unittest.TestCase):
             product = Product.query.get(1)
             self.assertIsNone(product)
 
+class TestProductPurchase(unittest.TestCase):
+
+    def setUp(self):
+        self.app = create_app(TestConfig)
+        
+        self.db = db
+        
+        self.client = self.app.test_client()
+        
+        self.post_data_seller = {
+            'username': 'seller1',
+            'password': 'randomGibberish777',
+            'role': 'seller'
+        }
+        
+        self.post_data_seller_login = {
+            'username': 'seller1',
+            'password': 'randomGibberish777',
+        }
+        
+        self.post_data_buyer = {
+            'username': 'buyer1',
+            'password': 'mtOl56&kkk',
+            'role': 'buyer'
+        }
+        
+        self.post_data_buyer_login = {
+            'username': 'buyer1',
+            'password': 'mtOl56&kkk',
+        }
+        
+        self.product1_data = {
+            'productName': 'product1',
+            'amountAvailable': 10,
+            'cost': 75
+        }
+        
+        _ = self.client.post('/user/register', json=self.post_data_seller)
+        _ = self.client.post('/user/login', json=self.post_data_seller_login)
+    
+    def tearDown(self):
+        with self.app.app_context():
+            self.db.session.remove()
+            self.db.drop_all()
+
+    def test_product_purchase_returns_change(self):
+        _ = self.client.post('/product/add', json=self.product1_data)
+        _ = self.client.get('/user/logout')
+        _ = self.client.post('/user/register', json=self.post_data_buyer)
+        _ = self.client.post('/user/login', json=self.post_data_buyer_login)
+        deposit_data = {
+            'c5': 0,
+            'c10': 0,
+            'c20': 0,
+            'c50': 2,
+            'c100': 0
+        }
+        _ = self.client.post('/user/deposit', json=deposit_data)
+        buy_data = {
+            'productId': 1,
+            'amountToBuy': 1,
+        }
+        response = self.client.post('/product/buy', json=buy_data)
+        expected_response = {
+            'productPurchased': self.product1_data['productName'],
+            'amountSpent': 75,
+            'change': {
+                'c5': 1,
+                'c10': 0,
+                'c20': 1,
+                'c50': 0,
+                'c100': 0
+            }
+        }
+        self.assertEqual(response.get_json(), expected_response)
+
 if __name__ == '__main__':
     unittest.main()
