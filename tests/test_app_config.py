@@ -2,14 +2,18 @@ import unittest
 
 from test_config import TestConfig
 from vending_machine import create_app, db
-from vending_machine.models import Coinstack, Product, User
 
-class TestRootRoute(unittest.TestCase):
+class TestAppConfig(unittest.TestCase):
 
     def setUp(self):
         self.app = create_app(TestConfig)
         self.db = db
     
+    def tearDown(self):
+        with self.app.app_context():
+            self.db.session.remove()
+            self.db.drop_all()
+
     def test_app_config_SQLALCHEMY_DATABASE_URI_is_sqlite(self):
         with self.app.test_client() as client:
             self.assertIn('sqlite', self.app.config['SQLALCHEMY_DATABASE_URI'])

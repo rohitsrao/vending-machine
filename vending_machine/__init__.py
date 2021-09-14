@@ -25,6 +25,7 @@ def create_app(config_class = Config):
     with app.app_context():
         bcrypt.init_app(app)
         db.init_app(app)
+        print('db connected to app')
         db.create_all()
         login_manager.init_app(app)
     
