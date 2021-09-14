@@ -8,6 +8,8 @@ bcrypt = Bcrypt()
 db = SQLAlchemy()
 login_manager = LoginManager()
 
+from vending_machine.models import Coinstack
+
 def create_app(config_class = Config):
     
     app = Flask(__name__)
@@ -22,13 +24,21 @@ def create_app(config_class = Config):
     
     with app.app_context():
         bcrypt.init_app(app)
-        db = init_db(app)
+        db.init_app(app)
+        #db = init_db(app)
         db.create_all()
         login_manager.init_app(app)
     
+    with app.app_context():
+        coinstack = Coinstack.query.get(1)
+        if coinstack is None:
+            coinstack= Coinstack()
+            db.session.add(coinstack)
+            db.session.commit()
+    
     return app
 
-def init_db(app):
-    with app.app_context():
-        db.init_app(app)
-        return db
+#def init_db(app):
+#    with app.app_context():
+#        db.init_app(app)
+#        return db

@@ -1,7 +1,7 @@
 import unittest
 
 from test_config import TestConfig
-from vending_machine import create_app, init_db
+from vending_machine import create_app, db
 from vending_machine.models import Product, User
 
 class TestProductRoute(unittest.TestCase):
@@ -9,9 +9,7 @@ class TestProductRoute(unittest.TestCase):
     def setUp(self):
         self.app = create_app(TestConfig)
         
-        self.db = init_db(self.app)
-        with self.app.app_context():
-            self.db.create_all()
+        self.db = db
         
         self.client = self.app.test_client()
         

@@ -1,16 +1,14 @@
 import unittest
 
 from test_config import TestConfig
-from vending_machine import create_app, init_db
+from vending_machine import create_app, db
 from vending_machine.models import Coinstack, Product, User
 
 class TestUserModel(unittest.TestCase):
     
     def setUp(self):
         self.app = create_app(TestConfig)
-        self.db = init_db(self.app)
-        with self.app.app_context():
-            self.db.create_all()
+        self.db = db
     
     def tearDown(self):
         with self.app.app_context():
@@ -48,9 +46,7 @@ class TestProductModel(unittest.TestCase):
     
     def setUp(self):
         self.app = create_app(TestConfig)
-        self.db = init_db(self.app)
-        with self.app.app_context():
-            self.db.create_all()
+        self.db = db
     
     def tearDown(self):
         with self.app.app_context():
@@ -84,14 +80,11 @@ class TestProductModel(unittest.TestCase):
             self.assertIsNotNone(product_in_db)
             self.assertEqual(product_in_db.cost, 80)
 
-
 class TestCoinStackModel(unittest.TestCase):
-
+    
     def setUp(self):
         self.app = create_app(TestConfig)
-        self.db = init_db(self.app)
-        with self.app.app_context():
-            self.db.create_all()
+        self.db = db
     
     def tearDown(self):
         with self.app.app_context():
@@ -117,7 +110,6 @@ class TestCoinStackModel(unittest.TestCase):
             stack_db = Coinstack.query.get(1)
             self.assertEqual(stack_db.__repr__(), 
                             "Coinstack(5c: '40', 10c: '40', 20c: '40', 50c: '40', 100c: '40')")
-
 
 if __name__ == '__main__':
     unittest.main()

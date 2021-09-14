@@ -3,7 +3,7 @@ import unittest
 
 from sqlalchemy.exc import IntegrityError
 from test_config import TestConfig
-from vending_machine import bcrypt, create_app, init_db
+from vending_machine import bcrypt, create_app, db
 from vending_machine.models import User
 
 class TestRegister(unittest.TestCase):
@@ -11,9 +11,7 @@ class TestRegister(unittest.TestCase):
     def setUp(self):
         self.app = create_app(TestConfig)
         
-        self.db = init_db(self.app)
-        with self.app.app_context():
-            self.db.create_all()
+        self.db = db
         
         self.client = self.app.test_client()
         
@@ -119,9 +117,7 @@ class TestLogin(unittest.TestCase):
     def setUp(self):
         self.app = create_app(TestConfig)
         
-        self.db = init_db(self.app)
-        with self.app.app_context():
-            self.db.create_all()
+        self.db = db
         
         self.client = self.app.test_client()
     
@@ -185,9 +181,7 @@ class TestLogout(unittest.TestCase):
     def setUp(self):
         self.app = create_app(TestConfig)
         
-        self.db = init_db(self.app)
-        with self.app.app_context():
-            self.db.create_all()
+        self.db = db
         
         self.client = self.app.test_client()
         
@@ -223,9 +217,7 @@ class TestAccount(unittest.TestCase):
     def setUp(self):
         self.app = create_app(TestConfig)
         
-        self.db = init_db(self.app)
-        with self.app.app_context():
-            self.db.create_all()
+        self.db = db
         
         self.client = self.app.test_client()
         self.get_response = self.client.get('/user/register')
@@ -375,9 +367,7 @@ class TestDeposit(unittest.TestCase):
     def setUp(self):
         self.app = create_app(TestConfig)
         
-        self.db = init_db(self.app)
-        with self.app.app_context():
-            self.db.create_all()
+        self.db = db
         
         self.client = self.app.test_client()
         
