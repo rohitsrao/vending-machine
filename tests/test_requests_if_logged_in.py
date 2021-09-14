@@ -277,6 +277,5 @@ class TestRequestsIfLoggedIn(unittest.TestCase):
         self.assertEqual(response.get_json()['message'],
                          'user must be a buyer to buy')
 
-
 if __name__ == '__main__':
     unittest.main()
