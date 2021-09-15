@@ -14,7 +14,6 @@ Your vending machine should only accept 5, 10, 20, 50 and 100 cent coins.
 - Implement /deposit endpoint so users with a “buyer” role can deposit 5, 10, 20, 50 and 100 cent coins into their vending machine account
 - Implement /buy endpoint (accepts productId, amount of products) so users with a “buyer” role can buy products with the money they’ve deposited. API should return total they’ve spent, products they’ve purchased and their change if there’s any (in 5, 10, 20, 50 and 100 cent coins)
 - Implement /reset endpoint so users with a “buyer” role can reset their deposit
-- Take time to think about possible edge cases and access issues that should be solved
 
 ### Installation instructions
 
@@ -25,6 +24,9 @@ python3 -m venv env
 source env/bin/activate
 pip install -r requirements.txt
 pip install -e .
+```
 open vending_machine/config.py and set a value of SECRET_KEY
+
+```bash
 python3 run.py
 ```
