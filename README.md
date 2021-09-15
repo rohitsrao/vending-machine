@@ -23,7 +23,7 @@ cd vending-machine
 python3 -m venv env
 source env/bin/activate
 pip install -r requirements.txt
-pip install -e .
+pip install .
 ```
 open vending_machine/config.py and set a value of SECRET_KEY
 
