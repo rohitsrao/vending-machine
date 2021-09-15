@@ -17,12 +17,12 @@ class TestRootRoute(unittest.TestCase):
     def test_get_response_contains_products(self):
         json_response = self.client.get('/').get_json()
         self.assertIn('products', json_response.keys())
-
+        
     def tearDown(self):
         with self.app.app_context():
             self.db.session.remove()
             self.db.drop_all()
-
+        
     def test_home_page_displays_3_products_from_database(self):
         self.post_data_seller = {
             'username': 'seller1',
@@ -52,7 +52,7 @@ class TestRootRoute(unittest.TestCase):
             'amountAvailable': 15,
             'cost': 55
         }
-
+     
         _ = self.client.post('/user/register', json=self.post_data_seller)
         _ = self.client.post('/user/login', json=self.post_data_seller_login)
         _ = self.client.post('/product/add', json=self.product1_data)
@@ -80,7 +80,6 @@ class TestRootRoute(unittest.TestCase):
         print(response.get_json()['products'])
         print(expected_response)
         self.assertEqual(response.get_json()['products'], expected_response)
-
 
 if __name__ == '__main__':
     unittest.main()

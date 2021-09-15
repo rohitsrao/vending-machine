@@ -10,7 +10,7 @@ class TestCoinstack(unittest.TestCase):
         self.app = create_app(TestConfig)
         self.db = db
         self.client = self.app.test_client()
-    
+        
         self.post_data_seller = {
             'username': 'seller1',
             'password': 'randomGibberish777',
@@ -83,7 +83,6 @@ class TestCoinstack(unittest.TestCase):
         }
         _ = self.client.post('/user/deposit', json=deposit_data)
         response = self.client.get('/user/deposit/reset', json=deposit_data)
-        print(response.get_json())
         change_returned = response.get_json()['change']
         with self.app.app_context():
             coinstack = Coinstack.query.get(1)
@@ -113,7 +112,6 @@ class TestCoinstack(unittest.TestCase):
             'amountToBuy': 1,
         }
         response = self.client.post('/product/buy', json=buy_data)
-        print(response.get_json())
         change_returned = response.get_json()['change']
         with self.app.app_context():
             coinstack = Coinstack.query.get(1)

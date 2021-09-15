@@ -421,6 +421,5 @@ class TestDeposit(unittest.TestCase):
             user = User.query.filter_by(username=self.post_data_buyer['username']).first()
             self.assertEqual(user.deposit, 0)
 
-
 if __name__ == '__main__':
     unittest.main()
