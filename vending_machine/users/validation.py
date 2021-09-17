@@ -13,6 +13,10 @@ def username_exists(username):
     if existing_user: return True
     else: return False
 
+def username_longer_than_20_chars(username):
+    if len(username) > 20: return True
+    else: return False
+
 def username_missing(req):
     if 'username' not in req: return True
     else: return False
@@ -26,4 +30,5 @@ def validate_register_json_request(req):
 def validate_username(username):
     if username_exists(username):
         return (True, 'username already exists. Please register with a different one')
+    if username_longer_than_20_chars(username): return (True, 'username must be less than 20 characters')
     return (False, '')

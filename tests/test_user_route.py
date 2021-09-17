@@ -105,12 +105,22 @@ class TestRegister(unittest.TestCase):
         response = self.client.post('/user/register', json=post_data)
         self.assertEqual(response.get_json()['message'],
                          'role not provided')
-
+    
     def test_register_hashes_password_before_storing(self):
         _ = self.client.post('/user/register', json=self.post_data_seller)
         with self.app.app_context():
             user = User.query.filter_by(username=self.post_data_seller['username']).first()
             self.assertTrue(bcrypt.check_password_hash(user.password, self.post_data_seller['password']))
+    
+    def test_register_new_user_with_username_longer_than_20_characters(self):
+        post_data = {
+            'username': 'ThisUsernameIsLongerThan20Characters',
+            'password': 'password',
+            'role': 'buyer'
+        }
+        response = self.client.post('/user/register', json=post_data)
+        self.assertEqual(response.get_json()['message'],
+                    'username must be less than 20 characters')
 
 class TestLogin(unittest.TestCase):
     
