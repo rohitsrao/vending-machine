@@ -325,6 +325,39 @@ class TestAccount(unittest.TestCase):
         self.assertEqual(response.get_json()['message'],
                          'new username already exists. Please choose a different one.')
     
+    def test_patch_request_to_update_username_checks_for_length_less_than_20(self):
+        _ = self.client.post('/user/register', json=self.post_data_buyer)
+        _ = self.client.post('/user/register', json=self.post_data_seller)
+        _ = self.client.post('/user/login', json=self.post_data_buyer_login)
+        patch_data = {
+            'username': 'This Username is realy really long. It even has its own typo'
+        }
+        response = self.client.patch('/user/account/update_username', json=patch_data)
+        self.assertEqual(response.get_json()['message'],
+                         'username must be less than 20 characters')
+    
+    def test_patch_request_to_update_username_with_spaces_in_new_username(self):
+        _ = self.client.post('/user/register', json=self.post_data_buyer)
+        _ = self.client.post('/user/register', json=self.post_data_seller)
+        _ = self.client.post('/user/login', json=self.post_data_buyer_login)
+        patch_data = {
+            'username': 'username with spaces',
+        }
+        response = self.client.patch('/user/account/update_username', json=patch_data)
+        self.assertEqual(response.get_json()['message'],
+                    'username must not contains spaces')
+    
+    def test_register_new_user_with_usrename_being_None(self):
+        _ = self.client.post('/user/register', json=self.post_data_buyer)
+        _ = self.client.post('/user/register', json=self.post_data_seller)
+        _ = self.client.post('/user/login', json=self.post_data_buyer_login)
+        patch_data = {
+            'username': None
+        }
+        response = self.client.patch('/user/account/update_username', json=patch_data)
+        self.assertEqual(response.get_json()['message'],
+                    'username cannot be None')
+    
     def test_patch_request_to_update_password(self):
         _ = self.client.post('/user/register', json=self.post_data_seller)
         _ = self.client.post('/user/login', json=self.post_data_seller_login)

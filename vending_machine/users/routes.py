@@ -51,6 +51,8 @@ def update_username():
         new_username = req['username']
         if username_exists(new_username):
             return jsonify(message='new username already exists. Please choose a different one.')
+        username_is_invalid, error_message = validate_username(new_username)
+        if username_is_invalid: return jsonify(message=error_message)
         user = User.query.filter_by(username=current_user.username).first()
         user.username = new_username
         db.session.commit()
