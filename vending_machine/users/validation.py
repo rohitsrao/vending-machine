@@ -32,6 +32,7 @@ def validate_register_json_request(req):
     return (False, '')
 
 def validate_username(username):
+    if username is None: return (True, 'username cannot be None')
     if username_exists(username):
         return (True, 'username already exists. Please register with a different one')
     if username_longer_than_20_chars(username): return (True, 'username must be less than 20 characters')

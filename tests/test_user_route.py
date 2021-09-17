@@ -131,6 +131,16 @@ class TestRegister(unittest.TestCase):
         response = self.client.post('/user/register', json=post_data)
         self.assertEqual(response.get_json()['message'],
                     'username must not contains spaces')
+    
+    def test_register_new_user_with_usrename_being_None(self):
+        post_data = {
+            'username': None,
+            'password': 'password',
+            'role': 'buyer'
+        }
+        response = self.client.post('/user/register', json=post_data)
+        self.assertEqual(response.get_json()['message'],
+                    'username cannot be None')
 
 class TestLogin(unittest.TestCase):
     
