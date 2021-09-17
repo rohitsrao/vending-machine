@@ -101,6 +101,7 @@ def buy_product():
                 if change_coins is None:
                     return jsonify(message='vending machine has insufficient change. Please contact customer service')
                 reduce_change_from_coinstack(coinstack, change_coins)
+                user.deposit = 0
                 db.session.commit()
             return jsonify({
                 'productPurchased': product.productName,
