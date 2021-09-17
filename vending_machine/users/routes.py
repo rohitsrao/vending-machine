@@ -22,6 +22,8 @@ def register():
         username, password, role = extract_json_request(req)
         username_is_invalid, error_message = validate_username(username)
         if username_is_invalid: return jsonify(message=error_message)
+        password_is_invalid, error_message = validate_password(password, username)
+        if password_is_invalid: return jsonify(message=error_message)
         if role == 'seller':
             add_new_user_to_db(username, password, 'seller')
         else:
@@ -65,6 +67,9 @@ def update_password():
     if current_user.is_authenticated:
         req = request.get_json()
         new_password = req['password']
+        user = User.query.filter_by(username=current_user.username).first()
+        password_is_invalid, error_message = validate_password(new_password, user.username)
+        if password_is_invalid: return jsonify(message=error_message)
         hashed_pw = bcrypt.generate_password_hash(new_password).decode('utf-8')
         user = User.query.filter_by(username=current_user.username).first()
         user.password = hashed_pw

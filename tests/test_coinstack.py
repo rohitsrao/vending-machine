@@ -24,13 +24,13 @@ class TestCoinstack(unittest.TestCase):
         
         self.post_data_buyer = {
             'username': 'hummuslover',
-            'password': 'pw123',
+            'password': 'pw123pw123',
             'role': 'buyer'
         }
         
         self.post_data_buyer_login = {
             'username': 'hummuslover',
-            'password': 'pw123',
+            'password': 'pw123pw123',
         }
         
         self.product1_data = {

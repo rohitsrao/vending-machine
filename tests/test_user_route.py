@@ -17,13 +17,13 @@ class TestRegister(unittest.TestCase):
         
         self.post_data_buyer = {
             'username': 'hummuslover',
-            'password': 'pw123',
+            'password': 'password123',
             'role': 'buyer'
         }
      
         self.post_data_buyer_login = {
             'username': 'hummuslover',
-            'password': 'pw123',
+            'password': 'password123',
         }
         
         self.post_data_seller = {
@@ -75,12 +75,6 @@ class TestRegister(unittest.TestCase):
         response_message = response.get_json()['message']
         self.assertEqual(response_message, 'registered successfully')
     
-    def test_username_should_be_unique(self):
-        _ = self.client.post('/user/register', json=self.post_data_buyer)
-        response = self.client.post('/user/register', json=self.post_data_buyer)
-        self.assertEqual(response.get_json()['message'], 
-                         'username already exists. Please register with a different one')
-    
     def test_register_post_request_with_missing_username(self):
         post_data = {
             'password': 'password'
@@ -106,11 +100,11 @@ class TestRegister(unittest.TestCase):
         self.assertEqual(response.get_json()['message'],
                          'role not provided')
     
-    def test_register_hashes_password_before_storing(self):
-        _ = self.client.post('/user/register', json=self.post_data_seller)
-        with self.app.app_context():
-            user = User.query.filter_by(username=self.post_data_seller['username']).first()
-            self.assertTrue(bcrypt.check_password_hash(user.password, self.post_data_seller['password']))
+    def test_username_should_be_unique(self):
+        _ = self.client.post('/user/register', json=self.post_data_buyer)
+        response = self.client.post('/user/register', json=self.post_data_buyer)
+        self.assertEqual(response.get_json()['message'], 
+                         'username already exists. Please register with a different one')
     
     def test_register_new_user_with_username_longer_than_20_characters(self):
         post_data = {
@@ -141,6 +135,42 @@ class TestRegister(unittest.TestCase):
         response = self.client.post('/user/register', json=post_data)
         self.assertEqual(response.get_json()['message'],
                     'username cannot be None')
+    
+    def test_register_hashes_password_before_storing(self):
+        _ = self.client.post('/user/register', json=self.post_data_seller)
+        with self.app.app_context():
+            user = User.query.filter_by(username=self.post_data_seller['username']).first()
+            self.assertTrue(bcrypt.check_password_hash(user.password, self.post_data_seller['password']))
+    
+    def test_password_shorter_than_8_characters_returns_error_message(self):
+        post_data = {
+            'username': 'username',
+            'password': 'pppp',
+            'role': 'buyer'
+        }
+        response = self.client.post('/user/register', json=post_data)
+        self.assertEqual(response.get_json()['message'],
+                    'password must be longer than 8 characters')
+    
+    def test_password_same_as_username_returns_error_message(self):
+        post_data = {
+            'username': 'username',
+            'password': 'username',
+            'role': 'buyer'
+        }
+        response = self.client.post('/user/register', json=post_data)
+        self.assertEqual(response.get_json()['message'],
+                    'password cannot be same as username')
+    
+    def test_password_same_as_username_returns_error_message(self):
+        post_data = {
+            'username': 'username',
+            'password': None,
+            'role': 'buyer'
+        }
+        response = self.client.post('/user/register', json=post_data)
+        self.assertEqual(response.get_json()['message'],
+                    'password cannot be None')
 
 class TestLogin(unittest.TestCase):
     
@@ -254,13 +284,13 @@ class TestAccount(unittest.TestCase):
         
         self.post_data_buyer = {
             'username': 'hummuslover',
-            'password': 'pw123',
+            'password': 'password123',
             'role': 'buyer'
         }
      
         self.post_data_buyer_login = {
             'username': 'hummuslover',
-            'password': 'pw123',
+            'password': 'password123',
         }
         
         self.post_data_seller = {
@@ -370,6 +400,36 @@ class TestAccount(unittest.TestCase):
             self.assertTrue(bcrypt.check_password_hash(updated_user.password, patch_data['password']))
             self.assertEqual(response.get_json()['message'], 'password updated')
     
+    def test_password_shorter_than_8_characters_returns_error_message(self):
+        _ = self.client.post('/user/register', json=self.post_data_seller)
+        _ = self.client.post('/user/login', json=self.post_data_seller_login)
+        patch_data = {
+            'password': 'word'
+        }
+        response = self.client.patch('/user/account/update_password', json=patch_data)
+        self.assertEqual(response.get_json()['message'],
+                    'password must be longer than 8 characters')
+    
+    def test_update_password_same_as_username_returns_error_message(self):
+        _ = self.client.post('/user/register', json=self.post_data_seller)
+        _ = self.client.post('/user/login', json=self.post_data_seller_login)
+        patch_data = {
+            'password': self.post_data_seller['username']
+        }
+        response = self.client.patch('/user/account/update_password', json=patch_data)
+        self.assertEqual(response.get_json()['message'],
+                    'password cannot be same as username')
+    
+    def test_update_password_same_as_username_returns_error_message(self):
+        _ = self.client.post('/user/register', json=self.post_data_seller)
+        _ = self.client.post('/user/login', json=self.post_data_seller_login)
+        patch_data = {
+            'password': None
+        }
+        response = self.client.patch('/user/account/update_password', json=patch_data)
+        self.assertEqual(response.get_json()['message'],
+                    'password cannot be None')
+    
     def test_patch_request_to_update_role(self):
         _ = self.client.post('/user/register', json=self.post_data_buyer)
         _ = self.client.post('/user/login', json=self.post_data_buyer_login)
@@ -436,13 +496,13 @@ class TestDeposit(unittest.TestCase):
         
         self.post_data_buyer = {
             'username': 'hummuslover',
-            'password': 'pw123',
+            'password': 'password123',
             'role': 'buyer'
         }
        
         self.post_data_buyer_login = {
             'username': 'hummuslover',
-            'password': 'pw123',
+            'password': 'password123',
         }
         
         _ = self.client.post('/user/register', json=self.post_data_buyer)

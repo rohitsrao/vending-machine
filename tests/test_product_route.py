@@ -96,21 +96,21 @@ class TestProductRoute(unittest.TestCase):
     def test_put_request_as_different_seller_from_product_returns_error_message(self):
         seller1_data = {
             'username': 'seller1',
-            'password': 'pw1',
+            'password': 'password1',
             'role': 'seller'
         }
         seller1_login_data = {
             'username': 'seller1',
-            'password': 'pw1'
+            'password': 'password1'
         }
         seller2_data = {
             'username': 'seller2',
-            'password': 'pw2',
+            'password': 'password2',
             'role': 'seller'
         }
         seller2_login_data = {
             'username': 'seller2',
-            'password': 'pw2'
+            'password': 'password2'
         }
         product_data = {
             'productName': 'product1',
@@ -135,21 +135,21 @@ class TestProductRoute(unittest.TestCase):
     def test_put_request_as_different_seller_from_product_returns_error_message(self):
         seller1_data = {
             'username': 'seller1',
-            'password': 'pw1',
+            'password': 'password1',
             'role': 'seller'
         }
         seller1_login_data = {
             'username': 'seller1',
-            'password': 'pw1'
+            'password': 'password1'
         }
         seller2_data = {
             'username': 'seller2',
-            'password': 'pw2',
+            'password': 'password2',
             'role': 'seller'
         }
         seller2_login_data = {
             'username': 'seller2',
-            'password': 'pw2'
+            'password': 'password2'
         }
         product_data = {
             'productName': 'product1',
