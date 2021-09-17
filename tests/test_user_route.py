@@ -121,6 +121,16 @@ class TestRegister(unittest.TestCase):
         response = self.client.post('/user/register', json=post_data)
         self.assertEqual(response.get_json()['message'],
                     'username must be less than 20 characters')
+    
+    def test_register_new_user_with_spaces_in_username(self):
+        post_data = {
+            'username': 'username with spaces',
+            'password': 'password',
+            'role': 'buyer'
+        }
+        response = self.client.post('/user/register', json=post_data)
+        self.assertEqual(response.get_json()['message'],
+                    'username must not contains spaces')
 
 class TestLogin(unittest.TestCase):
     

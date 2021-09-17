@@ -8,6 +8,10 @@ def role_missing(req):
     if 'role' not in req: return True
     else: return False
 
+def username_contains_space(username):
+    if ' ' in username: return True
+    else: return False
+
 def username_exists(username):
     existing_user = User.query.filter_by(username=username).first()
     if existing_user: return True
@@ -31,4 +35,5 @@ def validate_username(username):
     if username_exists(username):
         return (True, 'username already exists. Please register with a different one')
     if username_longer_than_20_chars(username): return (True, 'username must be less than 20 characters')
+    if username_contains_space(username): return (True, 'username must not contains spaces')
     return (False, '')
