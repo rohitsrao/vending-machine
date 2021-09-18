@@ -4,6 +4,10 @@ def amount_available_greater_than_15(amountAvailable):
     if amountAvailable > 15: return True
     else: return False
 
+def amount_available_is_not_int(amountAvailable):
+    if not isinstance(amountAvailable, int): return True
+    else: return False
+
 def amount_available_negative(amountAvailable):
     if amountAvailable < 0: return True
     else: return False
@@ -19,6 +23,7 @@ def productName_longer_than_32_characters(productName):
 
 def validate_amountAvailable(amountAvailable):
     if amountAvailable is None: return (True, 'amountAvailable must not be None')
+    if amount_available_is_not_int(amountAvailable): return (True, 'amountAvailable must be of type int')
     if amount_available_greater_than_15(amountAvailable): 
         return (True, 'amountAvailable must be lesser than or equal to 15')
     if amount_available_negative(amountAvailable): return (True, 'amountAvailable must be positive')
