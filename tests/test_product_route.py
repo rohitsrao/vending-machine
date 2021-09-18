@@ -142,6 +142,16 @@ class TestProductRoute(unittest.TestCase):
         self.assertEqual(response.get_json()['message'], 
                          'cost must be of type int')
     
+    def test_adding_product_with_None_cost_returns_error(self):
+        product_data = {
+            'productName': 'Crystal Water',
+            'amountAvailable': 5,
+            'cost': None
+        }
+        response = self.client.post('/product/add', json=product_data)
+        self.assertEqual(response.get_json()['message'], 
+                         'cost must not be None')
+    
     def test_add_product_has_current_seller_id(self):
         response = self.client.post('/product/add', json=self.product_data)
         with self.app.app_context():
@@ -254,6 +264,50 @@ class TestProductRoute(unittest.TestCase):
         response = self.client.put('/product/1/update', json=updated_product_data)
         self.assertEqual(response.get_json()['message'],
                          'amountAvailable must be of type int')
+    
+    def test_update_product_details_with_new_cost_not_multiple_of_5_returns_error_message(self):
+        _ = self.client.post('/product/add', json=self.product_data)
+        updated_product_data = {
+            'productName': 'Water',
+            'amountAvailable': 5,
+            'cost': 23
+        }
+        response = self.client.put('/product/1/update', json=updated_product_data)
+        self.assertEqual(response.get_json()['message'],
+                         'cost must be a multiple of 5')
+    
+    def test_update_product_details_with_negative_new_cost_returns_error_message(self):
+        _ = self.client.post('/product/add', json=self.product_data)
+        updated_product_data = {
+            'productName': 'Water',
+            'amountAvailable': 5,
+            'cost': -65
+        }
+        response = self.client.put('/product/1/update', json=updated_product_data)
+        self.assertEqual(response.get_json()['message'],
+                         'cost must be positive')
+    
+    def test_update_product_details_with_non_int_new_cost_returns_error_message(self):
+        _ = self.client.post('/product/add', json=self.product_data)
+        updated_product_data = {
+            'productName': 'Water',
+            'amountAvailable': 5,
+            'cost': False
+        }
+        response = self.client.put('/product/1/update', json=updated_product_data)
+        self.assertEqual(response.get_json()['message'],
+                         'cost must be of type int')
+    
+    def test_update_product_details_with_None_new_cost_returns_error_message(self):
+        _ = self.client.post('/product/add', json=self.product_data)
+        updated_product_data = {
+            'productName': 'Water',
+            'amountAvailable': 5,
+            'cost': None
+        }
+        response = self.client.put('/product/1/update', json=updated_product_data)
+        self.assertEqual(response.get_json()['message'],
+                         'cost must not be None')
     
     def test_update_product_details_as_different_seller_from_product_returns_error_message(self):
         seller1_data = {

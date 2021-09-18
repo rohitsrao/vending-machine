@@ -64,6 +64,8 @@ def update_product_details(product_id):
         if productName_is_invalid: return jsonify(message=error_message)
         amountAvailable_is_invalid, error_message = validate_amountAvailable(req['amountAvailable'])
         if amountAvailable_is_invalid: return jsonify(message=error_message)
+        cost_is_invalid, error_message = validate_cost(req['cost'])
+        if cost_is_invalid: return jsonify(message=error_message)
         with current_app.app_context():
             product.productName = req['productName']
             product.amountAvailable = req['amountAvailable']

@@ -21,7 +21,8 @@ def cost_is_negative(cost):
     else: return False
 
 def cost_is_not_int(cost):
-    if not isinstance(cost, int): return True
+    if isinstance(cost, bool): return True
+    elif not isinstance(cost, int): return True
     else: return False
 
 def productName_exists(productName):
@@ -42,6 +43,7 @@ def validate_amountAvailable(amountAvailable):
     return (False, '')
 
 def validate_cost(cost):
+    if cost is None: return (True, 'cost must not be None')
     if cost_is_not_int(cost): return (True, 'cost must be of type int')
     if cost_is_not_multiple_of_5(cost): return (True, 'cost must be a multiple of 5')
     if cost_is_negative(cost): return (True, 'cost must be positive')
