@@ -4,6 +4,10 @@ def amount_available_greater_than_15(amountAvailable):
     if amountAvailable > 15: return True
     else: return False
 
+def amount_available_negative(amountAvailable):
+    if amountAvailable < 0: return True
+    else: return False
+
 def productName_exists(productName):
     existing_product = Product.query.filter_by(productName=productName).first()
     if existing_product: return True
@@ -14,7 +18,10 @@ def productName_longer_than_32_characters(productName):
     else: return False
 
 def validate_amountAvailable(amountAvailable):
-    if amount_available_greater_than_15: return (True, 'amountAvailable must be lesser than or equal to 15')
+    if amountAvailable is None: return (True, 'amountAvailable must not be None')
+    if amount_available_greater_than_15(amountAvailable): 
+        return (True, 'amountAvailable must be lesser than or equal to 15')
+    if amount_available_negative(amountAvailable): return (True, 'amountAvailable must be positive')
     return (False, '')
 
 def validate_productName_when_adding_product(productName):

@@ -45,7 +45,7 @@ class TestProductRoute(unittest.TestCase):
         with self.app.app_context():
             product = Product.query.filter_by(productName=self.product_data['productName']).first()
             self.assertIsNotNone(product)
-
+    
     def test_productName_must_be_unique_when_adding_to_database(self):
         _ = self.client.post('/product/add', json=self.product_data)
         response = self.client.post('/product/add', json=self.product_data)
@@ -71,7 +71,7 @@ class TestProductRoute(unittest.TestCase):
         response = self.client.post('/product/add', json=product_data)
         self.assertEqual(response.get_json()['message'], 
                          'productName cannot be None')
-
+    
     def test_adding_product_with_amountAvailable_greater_than_15_returns_error_message(self):
         product_data = {
             'productName': 'Alive Water',
@@ -81,6 +81,26 @@ class TestProductRoute(unittest.TestCase):
         response = self.client.post('/product/add', json=product_data)
         self.assertEqual(response.get_json()['message'], 
                          'amountAvailable must be lesser than or equal to 15')
+    
+    def test_adding_product_with_negative_amountAvailable_returns_error_message(self):
+        product_data = {
+            'productName': 'Crystal Water',
+            'amountAvailable': -5,
+            'cost': 75
+        }
+        response = self.client.post('/product/add', json=product_data)
+        self.assertEqual(response.get_json()['message'], 
+                         'amountAvailable must be positive')
+    
+    def test_adding_product_with_None_amountAvailable_returns_error_message(self):
+        product_data = {
+            'productName': 'Crystal Water',
+            'amountAvailable': None,
+            'cost': 75
+        }
+        response = self.client.post('/product/add', json=product_data)
+        self.assertEqual(response.get_json()['message'], 
+                         'amountAvailable must not be None')
     
     def test_add_product_has_current_seller_id(self):
         response = self.client.post('/product/add', json=self.product_data)
