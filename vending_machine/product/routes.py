@@ -22,6 +22,8 @@ def add_product():
         seller = User.query.filter_by(username=current_user.username).first()
         productName_is_invalid, error_message = validate_productName_when_adding_product(product_name)
         if productName_is_invalid: return jsonify(message=error_message)
+        amountAvailable_is_invalid, error_message = validate_amountAvailable(amountAvailable)
+        if amountAvailable_is_invalid: return jsonify(message=error_message)
         product = Product(
             productName = product_name,
             amountAvailable = amountAvailable,
