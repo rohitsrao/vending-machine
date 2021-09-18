@@ -61,6 +61,16 @@ class TestProductRoute(unittest.TestCase):
         response = self.client.post('/product/add', json=product_data)
         self.assertEqual(response.get_json()['message'], 
                          'productName must be shorter than 32 characters')
+
+    def test_adding_product_with_None_productName_returns_error_message(self):
+        product_data = {
+            'productName': None,
+            'amountAvailable': 10,
+            'cost': 75
+        }
+        response = self.client.post('/product/add', json=product_data)
+        self.assertEqual(response.get_json()['message'], 
+                         'productName cannot be None')
     
     def test_add_product_has_current_seller_id(self):
         response = self.client.post('/product/add', json=self.product_data)

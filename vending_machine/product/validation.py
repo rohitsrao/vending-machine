@@ -10,6 +10,7 @@ def productName_longer_than_32_characters(productName):
     else: return False
 
 def validate_productName(productName):
+    if productName is None: return (True, 'productName cannot be None')
     if productName_exists(productName): return (True, 'productName already exists')
     if productName_longer_than_32_characters(productName): return (True, 'productName must be shorter than 32 characters')
     #if username is None: return (True, 'username cannot be None')
