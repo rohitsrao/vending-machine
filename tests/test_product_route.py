@@ -122,6 +122,16 @@ class TestProductRoute(unittest.TestCase):
         self.assertEqual(response.get_json()['message'], 
                          'cost must be a multiple of 5')
     
+    def test_adding_product_with_cost_negative_cost_returns_error(self):
+        product_data = {
+            'productName': 'Crystal Water',
+            'amountAvailable': 5,
+            'cost': -500
+        }
+        response = self.client.post('/product/add', json=product_data)
+        self.assertEqual(response.get_json()['message'], 
+                         'cost must be positive')
+    
     def test_add_product_has_current_seller_id(self):
         response = self.client.post('/product/add', json=self.product_data)
         with self.app.app_context():
