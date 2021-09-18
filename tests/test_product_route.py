@@ -25,7 +25,7 @@ class TestProductRoute(unittest.TestCase):
         }
         
         self.product_data = {
-            'productName': 'Coca Cola 0.3L',
+            'productName': 'Water',
             'amountAvailable': 10,
             'cost': 100
         }
@@ -101,7 +101,7 @@ class TestProductRoute(unittest.TestCase):
         response = self.client.post('/product/add', json=product_data)
         self.assertEqual(response.get_json()['message'], 
                          'amountAvailable must not be None')
-
+    
     def test_adding_product_with_non_int_amountAvailable_returns_error_message(self):
         product_data = {
             'productName': 'Crystal Water',
@@ -130,7 +130,7 @@ class TestProductRoute(unittest.TestCase):
         _ = self.client.post('/product/add', json=self.product_data)
         response = self.client.get('/product/1')
         expected_response = {
-            'productName': 'Coca Cola 0.3L',
+            'productName': 'Water',
             'amountAvailable': 10,
             'cost': 100,
             'sellerId': 1
@@ -143,11 +143,11 @@ class TestProductRoute(unittest.TestCase):
         self.assertEqual(response.get_json()['message'],
                          'invalid product id. Please check and try again.')
     
-    def test_put_request_to_update_product_details_from_valid_seller(self):
+    def test_update_product_details_from_valid_seller(self):
         _ = self.client.post('/product/add', json=self.product_data)
         updated_product_data = {
             'productName': 'Coca Cola 0.5L',
-            'amountAvailable': 20,
+            'amountAvailable': 12,
             'cost': 200
         }
         response = self.client.put('/product/1/update', json=updated_product_data)
@@ -159,7 +159,7 @@ class TestProductRoute(unittest.TestCase):
             self.assertEqual(product.amountAvailable, updated_product_data['amountAvailable'])
             self.assertEqual(product.cost, updated_product_data['cost'])
     
-    def test_put_request_to_update_product_details_should_contain_productName_less_than_32_characters(self):
+    def test_update_product_details_should_contain_productName_less_than_32_characters(self):
         _ = self.client.post('/product/add', json=self.product_data)
         updated_product_data = {
             'productName': 'this product name is longer than 32 characters. Much much longer',
@@ -170,7 +170,7 @@ class TestProductRoute(unittest.TestCase):
         self.assertEqual(response.get_json()['message'],
                          'productName must be shorter than 32 characters')
     
-    def test_put_request_to_update_product_details_with_productName_None_returns_error_message(self):
+    def test_update_product_details_with_productName_None_returns_error_message(self):
         _ = self.client.post('/product/add', json=self.product_data)
         updated_product_data = {
             'productName': None,
@@ -181,7 +181,51 @@ class TestProductRoute(unittest.TestCase):
         self.assertEqual(response.get_json()['message'],
                          'productName cannot be None')
     
-    def test_put_request_as_different_seller_from_product_returns_error_message(self):
+    def test_update_product_details_with_amountAvailable_greater_than_15_returns_error_message(self):
+        _ = self.client.post('/product/add', json=self.product_data)
+        updated_product_data = {
+            'productName': 'Water',
+            'amountAvailable': 33,
+            'cost': 200
+        }
+        response = self.client.put('/product/1/update', json=updated_product_data)
+        self.assertEqual(response.get_json()['message'],
+                         'amountAvailable must be lesser than or equal to 15')
+    
+    def test_update_product_details_with_negative_amountAvailable_returns_error_message(self):
+        _ = self.client.post('/product/add', json=self.product_data)
+        updated_product_data = {
+            'productName': 'Water',
+            'amountAvailable': -33,
+            'cost': 200
+        }
+        response = self.client.put('/product/1/update', json=updated_product_data)
+        self.assertEqual(response.get_json()['message'],
+                         'amountAvailable must be positive')
+    
+    def test_update_product_details_with_None_amountAvailable_returns_error_message(self):
+        _ = self.client.post('/product/add', json=self.product_data)
+        updated_product_data = {
+            'productName': 'Water',
+            'amountAvailable': None,
+            'cost': 200
+        }
+        response = self.client.put('/product/1/update', json=updated_product_data)
+        self.assertEqual(response.get_json()['message'],
+                         'amountAvailable must not be None')
+    
+    def test_update_product_details_with_non_int_amountAvailable_returns_error_message(self):
+        _ = self.client.post('/product/add', json=self.product_data)
+        updated_product_data = {
+            'productName': 'Water',
+            'amountAvailable': 'Fifty Thousand',
+            'cost': 200
+        }
+        response = self.client.put('/product/1/update', json=updated_product_data)
+        self.assertEqual(response.get_json()['message'],
+                         'amountAvailable must be of type int')
+    
+    def test_update_product_details_as_different_seller_from_product_returns_error_message(self):
         seller1_data = {
             'username': 'seller1',
             'password': 'password1',
