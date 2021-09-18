@@ -112,6 +112,16 @@ class TestProductRoute(unittest.TestCase):
         self.assertEqual(response.get_json()['message'], 
                          'amountAvailable must be of type int')
     
+    def test_adding_product_with_cost_not_a_multiple_of_5_returns_error(self):
+        product_data = {
+            'productName': 'Crystal Water',
+            'amountAvailable': 5,
+            'cost': 44
+        }
+        response = self.client.post('/product/add', json=product_data)
+        self.assertEqual(response.get_json()['message'], 
+                         'cost must be a multiple of 5')
+    
     def test_add_product_has_current_seller_id(self):
         response = self.client.post('/product/add', json=self.product_data)
         with self.app.app_context():

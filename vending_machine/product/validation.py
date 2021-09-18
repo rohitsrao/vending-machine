@@ -12,6 +12,10 @@ def amount_available_negative(amountAvailable):
     if amountAvailable < 0: return True
     else: return False
 
+def cost_is_not_multiple_of_5(cost):
+    if cost%5 != 0: return True
+    else: return False
+
 def productName_exists(productName):
     existing_product = Product.query.filter_by(productName=productName).first()
     if existing_product: return True
@@ -27,6 +31,10 @@ def validate_amountAvailable(amountAvailable):
     if amount_available_greater_than_15(amountAvailable): 
         return (True, 'amountAvailable must be lesser than or equal to 15')
     if amount_available_negative(amountAvailable): return (True, 'amountAvailable must be positive')
+    return (False, '')
+
+def validate_cost(cost):
+    if cost_is_not_multiple_of_5(cost): return (True, 'cost must be a multiple of 5')
     return (False, '')
 
 def validate_productName_when_adding_product(productName):

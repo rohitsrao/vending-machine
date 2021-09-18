@@ -24,6 +24,8 @@ def add_product():
         if productName_is_invalid: return jsonify(message=error_message)
         amountAvailable_is_invalid, error_message = validate_amountAvailable(amountAvailable)
         if amountAvailable_is_invalid: return jsonify(message=error_message)
+        cost_is_invalid, error_message = validate_cost(cost)
+        if cost_is_invalid: return jsonify(message=error_message)
         product = Product(
             productName = product_name,
             amountAvailable = amountAvailable,
