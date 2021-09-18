@@ -20,7 +20,7 @@ def add_product():
         amountAvailable = req['amountAvailable']
         cost = req['cost']
         seller = User.query.filter_by(username=current_user.username).first()
-        productName_is_invalid, error_message = validate_productName(product_name)
+        productName_is_invalid, error_message = validate_productName_when_adding_product(product_name)
         if productName_is_invalid: return jsonify(message=error_message)
         product = Product(
             productName = product_name,
@@ -56,6 +56,8 @@ def update_product_details(product_id):
         product = Product.query.get(product_id)
         if current_user.id != product.sellerId:
             return jsonify(message='seller id of current user does not match seller id of product')
+        productName_is_invalid, error_message = validate_productName_during_update(req['productName'])
+        if productName_is_invalid: return jsonify(message=error_message)
         with current_app.app_context():
             product.productName = req['productName']
             product.amountAvailable = req['amountAvailable']

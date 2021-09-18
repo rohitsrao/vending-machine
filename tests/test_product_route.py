@@ -118,6 +118,17 @@ class TestProductRoute(unittest.TestCase):
             self.assertEqual(product.productName, updated_product_data['productName'])
             self.assertEqual(product.amountAvailable, updated_product_data['amountAvailable'])
             self.assertEqual(product.cost, updated_product_data['cost'])
+
+    def test_put_request_to_update_product_details_should_contain_productName_less_than_32_characters(self):
+        _ = self.client.post('/product/add', json=self.product_data)
+        updated_product_data = {
+            'productName': 'this product name is longer than 32 characters. Much much longer',
+            'amountAvailable': 20,
+            'cost': 200
+        }
+        response = self.client.put('/product/1/update', json=updated_product_data)
+        self.assertEqual(response.get_json()['message'],
+                         'productName must be shorter than 32 characters')
     
     def test_put_request_as_different_seller_from_product_returns_error_message(self):
         seller1_data = {
