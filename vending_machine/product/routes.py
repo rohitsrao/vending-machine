@@ -4,8 +4,9 @@ from flask_login import current_user
 from sqlalchemy.orm import sessionmaker
 
 from vending_machine import db
-from vending_machine.models import Coinstack, Product, User
 from vending_machine.helper_functions import *
+from vending_machine.models import Coinstack, Product, User
+from vending_machine.product.validation import *
 
 product = Blueprint('product', __name__)
 
@@ -19,6 +20,8 @@ def add_product():
         amountAvailable = req['amountAvailable']
         cost = req['cost']
         seller = User.query.filter_by(username=current_user.username).first()
+        productName_is_invalid, error_message = validate_productName(product_name)
+        if productName_is_invalid: return jsonify(message=error_message)
         product = Product(
             productName = product_name,
             amountAvailable = amountAvailable,

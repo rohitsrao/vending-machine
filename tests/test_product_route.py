@@ -45,6 +45,12 @@ class TestProductRoute(unittest.TestCase):
         with self.app.app_context():
             product = Product.query.filter_by(productName=self.product_data['productName']).first()
             self.assertIsNotNone(product)
+
+    def test_productName_must_be_unique_when_adding_to_database(self):
+        _ = self.client.post('/product/add', json=self.product_data)
+        response = self.client.post('/product/add', json=self.product_data)
+        self.assertEqual(response.get_json()['message'], 
+                         'productName already exists')
     
     def test_add_product_has_current_seller_id(self):
         response = self.client.post('/product/add', json=self.product_data)
