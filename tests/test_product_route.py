@@ -52,7 +52,7 @@ class TestProductRoute(unittest.TestCase):
         self.assertEqual(response.get_json()['message'], 
                          'productName already exists')
     
-    def test_productName_longer_than_32_characters_returns_error_message(self):
+    def test_adding_product_with_productName_longer_than_32_characters_returns_error_message(self):
         product_data = {
             'productName': 'this product name is longer than 32 characters',
             'amountAvailable': 10,
@@ -61,7 +61,7 @@ class TestProductRoute(unittest.TestCase):
         response = self.client.post('/product/add', json=product_data)
         self.assertEqual(response.get_json()['message'], 
                          'productName must be shorter than 32 characters')
-
+    
     def test_adding_product_with_None_productName_returns_error_message(self):
         product_data = {
             'productName': None,
@@ -158,7 +158,7 @@ class TestProductRoute(unittest.TestCase):
         self.assertEqual(response.get_json()['message'],
                          'seller id of current user does not match seller id of product')
     
-    def test_put_request_as_different_seller_from_product_returns_error_message(self):
+    def test_delete_request_as_different_seller_from_product_returns_error_message(self):
         seller1_data = {
             'username': 'seller1',
             'password': 'password1',
