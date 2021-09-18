@@ -5,11 +5,14 @@ def productName_exists(productName):
     if existing_product: return True
     else: return False
 
+def productName_longer_than_32_characters(productName):
+    if len(productName) > 32: return True
+    else: return False
+
 def validate_productName(productName):
     if productName_exists(productName): return (True, 'productName already exists')
+    if productName_longer_than_32_characters(productName): return (True, 'productName must be shorter than 32 characters')
     #if username is None: return (True, 'username cannot be None')
     #if username_exists(username):
     #    return (True, 'username already exists. Please register with a different one')
-    #if username_longer_than_20_chars(username): return (True, 'username must be less than 20 characters')
-    #if username_contains_space(username): return (True, 'username must not contains spaces')
     return (False, '')

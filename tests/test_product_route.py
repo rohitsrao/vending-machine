@@ -52,6 +52,16 @@ class TestProductRoute(unittest.TestCase):
         self.assertEqual(response.get_json()['message'], 
                          'productName already exists')
     
+    def test_productName_longer_than_32_characters_returns_error_message(self):
+        product_data = {
+            'productName': 'this product name is longer than 32 characters',
+            'amountAvailable': 10,
+            'cost': 75
+        }
+        response = self.client.post('/product/add', json=product_data)
+        self.assertEqual(response.get_json()['message'], 
+                         'productName must be shorter than 32 characters')
+    
     def test_add_product_has_current_seller_id(self):
         response = self.client.post('/product/add', json=self.product_data)
         with self.app.app_context():
